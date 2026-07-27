@@ -1,11 +1,9 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { products as initialProducts, stockHistory as initialHistory } from "@/data/products";
-import { CATEGORIES, StockMovement, Product } from "@/types";
+import { useState, useMemo, useEffect } from "react";
+import { CATEGORIES, Product, StockMovement } from "@/types";
 import Topbar from "@/components/admin/topbar";
 import { formatPrice } from "@/lib/utils";
-import ProductImage from "@/components/shop/product-image";
 
 const HISTORY_PER_PAGE = 5;
 const INV_PER_PAGE = 10;
@@ -13,25 +11,32 @@ const INV_PER_PAGE = 10;
 type InvSortField = keyof Product | "level";
 
 export default function AdminInventoryPage() {
-  const [products, setProducts] = useState(initialProducts);
-  const [history, setHistory] = useState<StockMovement[]>(initialHistory);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [history, setHistory] = useState<StockMovement[]>([]);
   const [search, setSearch] = useState("");
   const [catFilter, setCatFilter] = useState("");
   const [sortField, setSortField] = useState<InvSortField | null>(null);
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
-  const [invPage, setInvPage] = useState(1);
   const [historyPage, setHistoryPage] = useState(1);
+  const [invPage, setInvPage] = useState(1);
   const [stockModal, setStockModal] = useState<{ open: boolean; productId?: number }>({ open: false });
   const [stockForm, setStockForm] = useState({ current: 0, change: "", reason: "" });
+
+  useEffect(() => {
+    Promise.all([
+      fetch("/api/products?showDisabled=true").then((r) => r.json()),
+      fetch("/api/stock-movements").then((r) => r.json()),
+    ]).then(([products, history]) => {
+      setProducts(products);
+      setHistory(history);
+    });
+  }, []);
 
   const toggleSort = (field: InvSortField) => {
     if (sortField === field) {
       if (sortDir === "asc") setSortDir("desc");
       else { setSortField(null); setSortDir("asc"); }
-    } else {
-      setSortField(field);
-      setSortDir("asc");
-    }
+    } else { setSortField(field); setSortDir("asc"); }
   };
 
   const sortIcon = (field: InvSortField) => {
@@ -47,14 +52,11 @@ export default function AdminInventoryPage() {
     });
     if (sortField) {
       result = [...result].sort((a, b) => {
-        const getVal = (p: Product, f: InvSortField) => {
-          if (f === "level") return (p.stock / 30) * 100;
-          return p[f];
-        };
+        const getVal = (p: Product, f: InvSortField) => f === "level" ? (p.stock / 30) * 100 : p[f as keyof Product];
         const av = getVal(a, sortField);
         const bv = getVal(b, sortField);
         if (typeof av === "string" && typeof bv === "string") return sortDir === "asc" ? av.localeCompare(bv) : bv.localeCompare(av);
-        if (typeof av === "number" && typeof bv === "number") return sortDir === "asc" ? av - bv : bv - av;
+        if (typeof av === "number" && typeof bv === "number") return sortDir === "asc" ? (av as number) - (bv as number) : (bv as number) - (av as number);
         return 0;
       });
     }
@@ -84,28 +86,25 @@ export default function AdminInventoryPage() {
 
   const closeStockModal = () => setStockModal({ open: false });
 
-  const saveStockAdjust = () => {
+  const saveStockAdjust = async () => {
     const { change, reason } = stockForm;
     const amount = parseInt(change);
     if (isNaN(amount) || amount === 0) return alert("Ingresa un cambio válido");
     if (!reason.trim()) return alert("Ingresa un motivo");
 
-    const p = products.find((pr) => pr.id === stockModal.productId);
-    if (!p) return;
+    const res = await fetch("/api/stock-movements", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ productId: stockModal.productId, change: amount, reason: reason.trim() }),
+    });
+    if (!res.ok) return alert("Error al ajustar stock");
 
-    const newStock = Math.max(0, p.stock + amount);
-    const entry: StockMovement = {
-      createdAt: now(),
-      productId: p.id,
-      oldStock: p.stock,
-      newStock,
-      reason: reason.trim(),
-    };
-
-    setProducts((prev) =>
-      prev.map((pr) => (pr.id === p.id ? { ...pr, stock: newStock, updatedAt: new Date().toISOString().split("T")[0] } : pr))
-    );
-    setHistory((prev) => [entry, ...prev]);
+    const [productsRes, historyRes] = await Promise.all([
+      fetch("/api/products?showDisabled=true"),
+      fetch("/api/stock-movements"),
+    ]);
+    setProducts(await productsRes.json());
+    setHistory(await historyRes.json());
     setHistoryPage(1);
     closeStockModal();
   };
@@ -114,7 +113,6 @@ export default function AdminInventoryPage() {
     <>
       <Topbar title="Inventario" />
       <div className="p-6">
-        {/* Stock history */}
         <div className="bg-white border border-[var(--color-border-soft)] rounded-xl overflow-hidden mb-5">
           <div className="px-5 py-4 border-b border-[var(--color-border-soft)]">
             <h2 className="text-lg font-semibold">Historial de cambios</h2>
@@ -135,9 +133,9 @@ export default function AdminInventoryPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {paginatedHistory.map((h, i) => (
-                    <tr key={i} className="hover:bg-[var(--color-surface)]">
-                      <td className="px-5 py-3 text-xs text-[var(--color-meta)] font-mono">{h.createdAt}</td>
+                  {paginatedHistory.map((h) => (
+                    <tr key={h.id} className="hover:bg-[var(--color-surface)]">
+                      <td className="px-5 py-3 text-xs text-[var(--color-meta)] font-mono">{h.createdAt?.split("T")[0]}</td>
                       <td className="px-5 py-3 text-sm font-semibold">{productMap.get(h.productId) || `#${h.productId}`}</td>
                       <td className="px-5 py-3 text-sm">{h.oldStock}</td>
                       <td className="px-5 py-3 text-sm">{h.newStock}</td>
@@ -151,28 +149,17 @@ export default function AdminInventoryPage() {
               </table>
               {totalHistoryPages > 1 && (
                 <div className="flex items-center justify-center gap-1 px-5 py-3 border-t border-[var(--color-border-soft)]">
-                  <button onClick={() => setHistoryPage(1)} disabled={currentHPage <= 1} className="min-w-[32px] h-8 border border-[var(--color-border-soft)] rounded text-xs font-semibold flex items-center justify-center disabled:opacity-30 hover:border-[var(--color-accent)] transition-colors">
-                    «
-                  </button>
-                  <button onClick={() => setHistoryPage(currentHPage - 1)} disabled={currentHPage <= 1} className="min-w-[32px] h-8 border border-[var(--color-border-soft)] rounded text-xs font-semibold flex items-center justify-center disabled:opacity-30 hover:border-[var(--color-accent)] transition-colors">
-                    ‹
-                  </button>
-                  <span className="text-xs text-[var(--color-meta)] px-2">
-                    {(currentHPage - 1) * HISTORY_PER_PAGE + 1}–{Math.min(currentHPage * HISTORY_PER_PAGE, history.length)} de {history.length}
-                  </span>
-                  <button onClick={() => setHistoryPage(currentHPage + 1)} disabled={currentHPage >= totalHistoryPages} className="min-w-[32px] h-8 border border-[var(--color-border-soft)] rounded text-xs font-semibold flex items-center justify-center disabled:opacity-30 hover:border-[var(--color-accent)] transition-colors">
-                    ›
-                  </button>
-                  <button onClick={() => setHistoryPage(totalHistoryPages)} disabled={currentHPage >= totalHistoryPages} className="min-w-[32px] h-8 border border-[var(--color-border-soft)] rounded text-xs font-semibold flex items-center justify-center disabled:opacity-30 hover:border-[var(--color-accent)] transition-colors">
-                    »
-                  </button>
+                  <button onClick={() => setHistoryPage(1)} disabled={currentHPage <= 1} className="min-w-[32px] h-8 border border-[var(--color-border-soft)] rounded text-xs font-semibold flex items-center justify-center disabled:opacity-30 hover:border-[var(--color-accent)]">«</button>
+                  <button onClick={() => setHistoryPage(currentHPage - 1)} disabled={currentHPage <= 1} className="min-w-[32px] h-8 border border-[var(--color-border-soft)] rounded text-xs font-semibold flex items-center justify-center disabled:opacity-30 hover:border-[var(--color-accent)]">‹</button>
+                  <span className="text-xs text-[var(--color-meta)] px-2">{(currentHPage - 1) * HISTORY_PER_PAGE + 1}–{Math.min(currentHPage * HISTORY_PER_PAGE, history.length)} de {history.length}</span>
+                  <button onClick={() => setHistoryPage(currentHPage + 1)} disabled={currentHPage >= totalHistoryPages} className="min-w-[32px] h-8 border border-[var(--color-border-soft)] rounded text-xs font-semibold flex items-center justify-center disabled:opacity-30 hover:border-[var(--color-accent)]">›</button>
+                  <button onClick={() => setHistoryPage(totalHistoryPages)} disabled={currentHPage >= totalHistoryPages} className="min-w-[32px] h-8 border border-[var(--color-border-soft)] rounded text-xs font-semibold flex items-center justify-center disabled:opacity-30 hover:border-[var(--color-accent)]">»</button>
                 </div>
               )}
             </>
           )}
         </div>
 
-        {/* Inventory table */}
         <div className="bg-white border border-[var(--color-border-soft)] rounded-xl overflow-hidden">
           <div className="flex justify-between items-center px-5 py-4 border-b border-[var(--color-border-soft)] flex-wrap gap-3">
             <h2 className="text-lg font-semibold">Inventario</h2>
@@ -195,7 +182,7 @@ export default function AdminInventoryPage() {
                 <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)] cursor-pointer select-none hover:text-[var(--color-fg)]" onClick={() => toggleSort("stock")}>Stock{sortIcon("stock")}</th>
                 <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)] cursor-pointer select-none hover:text-[var(--color-fg)]" onClick={() => toggleSort("level")}>Nivel{sortIcon("level")}</th>
                 <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)] cursor-pointer select-none hover:text-[var(--color-fg)]" onClick={() => toggleSort("price")}>Precio{sortIcon("price")}</th>
-                <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)] cursor-pointer select-none hover:text-[var(--color-fg)]" onClick={() => toggleSort("updatedAt")}>Última actualización{sortIcon("updatedAt")}</th>
+                <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)] cursor-pointer select-none hover:text-[var(--color-fg)]" onClick={() => toggleSort("updatedAt")}>Actualización{sortIcon("updatedAt")}</th>
                 <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)] w-28">Acciones</th>
               </tr>
             </thead>
@@ -227,17 +214,14 @@ export default function AdminInventoryPage() {
 
         {totalInvPages > 1 && (
           <div className="flex items-center justify-center gap-1 mt-6">
-            <button onClick={() => setInvPage(1)} disabled={currentInvPage <= 1} className="min-w-[32px] h-8 border border-[var(--color-border-soft)] rounded text-xs font-semibold flex items-center justify-center disabled:opacity-30 hover:border-[var(--color-accent)] transition-colors">«</button>
-            <button onClick={() => setInvPage(currentInvPage - 1)} disabled={currentInvPage <= 1} className="min-w-[32px] h-8 border border-[var(--color-border-soft)] rounded text-xs font-semibold flex items-center justify-center disabled:opacity-30 hover:border-[var(--color-accent)] transition-colors">‹</button>
-            <span className="text-xs text-[var(--color-meta)] px-2">
-              {(currentInvPage - 1) * INV_PER_PAGE + 1}–{Math.min(currentInvPage * INV_PER_PAGE, filtered.length)} de {filtered.length}
-            </span>
-            <button onClick={() => setInvPage(currentInvPage + 1)} disabled={currentInvPage >= totalInvPages} className="min-w-[32px] h-8 border border-[var(--color-border-soft)] rounded text-xs font-semibold flex items-center justify-center disabled:opacity-30 hover:border-[var(--color-accent)] transition-colors">›</button>
-            <button onClick={() => setInvPage(totalInvPages)} disabled={currentInvPage >= totalInvPages} className="min-w-[32px] h-8 border border-[var(--color-border-soft)] rounded text-xs font-semibold flex items-center justify-center disabled:opacity-30 hover:border-[var(--color-accent)] transition-colors">»</button>
+            <button onClick={() => setInvPage(1)} disabled={currentInvPage <= 1} className="min-w-[32px] h-8 border border-[var(--color-border-soft)] rounded text-xs font-semibold flex items-center justify-center disabled:opacity-30 hover:border-[var(--color-accent)]">«</button>
+            <button onClick={() => setInvPage(currentInvPage - 1)} disabled={currentInvPage <= 1} className="min-w-[32px] h-8 border border-[var(--color-border-soft)] rounded text-xs font-semibold flex items-center justify-center disabled:opacity-30 hover:border-[var(--color-accent)]">‹</button>
+            <span className="text-xs text-[var(--color-meta)] px-2">{(currentInvPage - 1) * INV_PER_PAGE + 1}–{Math.min(currentInvPage * INV_PER_PAGE, filtered.length)} de {filtered.length}</span>
+            <button onClick={() => setInvPage(currentInvPage + 1)} disabled={currentInvPage >= totalInvPages} className="min-w-[32px] h-8 border border-[var(--color-border-soft)] rounded text-xs font-semibold flex items-center justify-center disabled:opacity-30 hover:border-[var(--color-accent)]">›</button>
+            <button onClick={() => setInvPage(totalInvPages)} disabled={currentInvPage >= totalInvPages} className="min-w-[32px] h-8 border border-[var(--color-border-soft)] rounded text-xs font-semibold flex items-center justify-center disabled:opacity-30 hover:border-[var(--color-accent)]">»</button>
           </div>
         )}
 
-        {/* Stock adjust modal */}
         {stockModal.open && (
           <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center" onClick={closeStockModal}>
             <div className="bg-white rounded-xl shadow-xl max-w-[420px] w-[90%] p-6" onClick={(e) => e.stopPropagation()}>
@@ -249,33 +233,15 @@ export default function AdminInventoryPage() {
                 </div>
                 <div className="flex flex-col gap-1">
                   <label className="text-sm font-semibold">Cambio (+ entrada, - salida)</label>
-                  <input
-                    type="number"
-                    value={stockForm.change}
-                    onChange={(e) => setStockForm({ ...stockForm, change: e.target.value })}
-                    placeholder="0"
-                    className="border border-[var(--color-border-soft)] rounded-md px-3 py-2 outline-none focus:border-[var(--color-accent)]"
-                    autoFocus
-                  />
+                  <input type="number" value={stockForm.change} onChange={(e) => setStockForm({ ...stockForm, change: e.target.value })} placeholder="0" className="border border-[var(--color-border-soft)] rounded-md px-3 py-2 outline-none focus:border-[var(--color-accent)]" autoFocus />
                 </div>
                 <div className="flex flex-col gap-1">
                   <label className="text-sm font-semibold">Nuevo stock</label>
-                  <input
-                    type="number"
-                    value={Math.max(0, stockForm.current + (parseInt(stockForm.change) || 0))}
-                    disabled
-                    className="border border-[var(--color-border-soft)] rounded-md px-3 py-2 outline-none bg-[var(--color-surface-warm)] text-[var(--color-muted)]"
-                  />
+                  <input type="number" value={Math.max(0, stockForm.current + (parseInt(stockForm.change) || 0))} disabled className="border border-[var(--color-border-soft)] rounded-md px-3 py-2 outline-none bg-[var(--color-surface-warm)] text-[var(--color-muted)]" />
                 </div>
                 <div className="flex flex-col gap-1">
                   <label className="text-sm font-semibold">Motivo</label>
-                  <textarea
-                    value={stockForm.reason}
-                    onChange={(e) => setStockForm({ ...stockForm, reason: e.target.value })}
-                    placeholder="Ej: reposición de proveedor, ajuste de inventario..."
-                    rows={2}
-                    className="border border-[var(--color-border-soft)] rounded-md px-3 py-2 outline-none focus:border-[var(--color-accent)] resize-y min-h-[56px]"
-                  />
+                  <textarea value={stockForm.reason} onChange={(e) => setStockForm({ ...stockForm, reason: e.target.value })} placeholder="Ej: reposición de proveedor, ajuste de inventario..." rows={2} className="border border-[var(--color-border-soft)] rounded-md px-3 py-2 outline-none focus:border-[var(--color-accent)] resize-y min-h-[56px]" />
                 </div>
               </div>
               <div className="flex justify-end gap-3 mt-5 pt-4 border-t border-[var(--color-border-soft)]">
@@ -288,9 +254,4 @@ export default function AdminInventoryPage() {
       </div>
     </>
   );
-}
-
-function now() {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 }
