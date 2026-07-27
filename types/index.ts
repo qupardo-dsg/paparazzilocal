@@ -47,6 +47,7 @@ export type Order = {
   customer: string;
   total: number;
   status: string;
+  shippingZone?: string;
   createdAt: string;
   items: OrderItem[];
 };
