@@ -26,6 +26,8 @@ export default function AdminInventoryPage() {
   const [sortField, setSortField] = useState<InvSortField | null>(null);
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
   const [historyPage, setHistoryPage] = useState(1);
+  const [historySearch, setHistorySearch] = useState("");
+  const [historyCat, setHistoryCat] = useState("");
   const [invPage, setInvPage] = useState(1);
   const [stockModal, setStockModal] = useState<{ open: boolean; productId?: number }>({ open: false });
   const [stockForm, setStockForm] = useState({ current: 0, change: "", reason: "" });
@@ -77,9 +79,28 @@ export default function AdminInventoryPage() {
     return map;
   }, [products]);
 
-  const totalHistoryPages = Math.ceil(history.length / HISTORY_PER_PAGE);
+  const filteredHistory = useMemo(() => {
+    let result = history;
+    if (historySearch) {
+      const q = historySearch.toLowerCase();
+      result = result.filter(
+        (h) =>
+          (productMap.get(h.productId) || "").toLowerCase().includes(q) ||
+          h.reason.toLowerCase().includes(q)
+      );
+    }
+    if (historyCat) {
+      result = result.filter((h) => {
+        const p = products.find((pr) => pr.id === h.productId);
+        return p && p.category === historyCat;
+      });
+    }
+    return result;
+  }, [history, historySearch, historyCat, productMap, products]);
+
+  const totalHistoryPages = Math.ceil(filteredHistory.length / HISTORY_PER_PAGE);
   const currentHPage = Math.max(1, Math.min(historyPage, totalHistoryPages || 1));
-  const paginatedHistory = history.slice((currentHPage - 1) * HISTORY_PER_PAGE, currentHPage * HISTORY_PER_PAGE);
+  const paginatedHistory = filteredHistory.slice((currentHPage - 1) * HISTORY_PER_PAGE, currentHPage * HISTORY_PER_PAGE);
 
   const totalInvPages = Math.ceil(filtered.length / INV_PER_PAGE);
   const currentInvPage = Math.max(1, Math.min(invPage, totalInvPages || 1));
@@ -122,10 +143,20 @@ export default function AdminInventoryPage() {
       <Topbar title="Inventario" />
       <div className="p-6">
         <div className="bg-white border border-[var(--color-border-soft)] rounded-xl overflow-hidden mb-5">
-          <div className="px-5 py-4 border-b border-[var(--color-border-soft)]">
+          <div className="flex justify-between items-center px-5 py-4 border-b border-[var(--color-border-soft)] flex-wrap gap-3">
             <h2 className="text-lg font-semibold">Historial de cambios</h2>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 bg-[var(--color-surface-warm)] border border-[var(--color-border-soft)] rounded-md px-3 py-2">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" placeholder="Buscar..." value={historySearch} onChange={(e) => { setHistorySearch(e.target.value); setHistoryPage(1); }} className="bg-transparent outline-none text-sm w-36" />
+              </div>
+              <select value={historyCat} onChange={(e) => { setHistoryCat(e.target.value); setHistoryPage(1); }} className="bg-[var(--color-surface-elevated)] rounded-md px-3 py-2 text-sm outline-none cursor-pointer">
+                <option value="">Todas las categorías</option>
+                {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
           </div>
-          {history.length === 0 ? (
+          {filteredHistory.length === 0 ? (
             <p className="px-5 py-8 text-center text-sm text-[var(--color-muted)]">Sin movimientos registrados.</p>
           ) : (
             <>
@@ -159,7 +190,7 @@ export default function AdminInventoryPage() {
                 <div className="flex items-center justify-center gap-1 px-5 py-3 border-t border-[var(--color-border-soft)]">
                   <button onClick={() => setHistoryPage(1)} disabled={currentHPage <= 1} className="min-w-[32px] h-8 border border-[var(--color-border-soft)] rounded text-xs font-semibold flex items-center justify-center disabled:opacity-30 hover:border-[var(--color-accent)]">«</button>
                   <button onClick={() => setHistoryPage(currentHPage - 1)} disabled={currentHPage <= 1} className="min-w-[32px] h-8 border border-[var(--color-border-soft)] rounded text-xs font-semibold flex items-center justify-center disabled:opacity-30 hover:border-[var(--color-accent)]">‹</button>
-                  <span className="text-xs text-[var(--color-meta)] px-2">{(currentHPage - 1) * HISTORY_PER_PAGE + 1}–{Math.min(currentHPage * HISTORY_PER_PAGE, history.length)} de {history.length}</span>
+                  <span className="text-xs text-[var(--color-meta)] px-2">{(currentHPage - 1) * HISTORY_PER_PAGE + 1}–{Math.min(currentHPage * HISTORY_PER_PAGE, filteredHistory.length)} de {filteredHistory.length}</span>
                   <button onClick={() => setHistoryPage(currentHPage + 1)} disabled={currentHPage >= totalHistoryPages} className="min-w-[32px] h-8 border border-[var(--color-border-soft)] rounded text-xs font-semibold flex items-center justify-center disabled:opacity-30 hover:border-[var(--color-accent)]">›</button>
                   <button onClick={() => setHistoryPage(totalHistoryPages)} disabled={currentHPage >= totalHistoryPages} className="min-w-[32px] h-8 border border-[var(--color-border-soft)] rounded text-xs font-semibold flex items-center justify-center disabled:opacity-30 hover:border-[var(--color-accent)]">»</button>
                 </div>
