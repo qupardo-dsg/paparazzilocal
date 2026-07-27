@@ -16,13 +16,42 @@ model User {
 }
 
 model Product {
-  id        Int      @id @default(autoincrement())
-  name      String
-  category  String
+  id         Int           @id @default(autoincrement())
+  name       String
+  category   String
+  price      Int
+  stock      Int
+  sku        String        @unique
+  image      String?
+  disabled   Boolean       @default(false)
+  updatedAt  DateTime      @default(now()) @updatedAt
+  orderItems OrderItem[]
+}
+
+model Order {
+  id        String      @id
+  customer  String
+  total     Int
+  status    String      @default("En espera de confirmación")
+  createdAt DateTime    @default(now())
+  items     OrderItem[]
+}
+
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id])
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int     @default(1)
   price     Int
-  stock     Int
-  sku       String   @unique
-  image     String?
-  disabled  Boolean  @default(false)
-  updatedAt DateTime @default(now()) @updatedAt
+}
+
+model StockMovement {
+  id        Int      @id @default(autoincrement())
+  productId Int
+  oldStock  Int
+  newStock  Int
+  reason    String
+  createdAt DateTime @default(now())
 }

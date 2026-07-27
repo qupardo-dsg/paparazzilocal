@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { products } from "@/data/products";
 import { formatPrice } from "@/lib/utils";
 import { CATEGORIES } from "@/types";
 import { useCart } from "./cart-context";
@@ -25,9 +24,7 @@ export default function Nav() {
     return () => document.removeEventListener("click", handleClick);
   }, []);
 
-  const matches = query
-    ? products.filter((p) => p.name.toLowerCase().includes(query.toLowerCase())).slice(0, 6)
-    : [];
+  const matches = query ? [] : [];
 
   const currentCat = CATEGORIES.find((c) => pathname.startsWith(`/catalogo/${c.toLowerCase()}`));
 
@@ -67,21 +64,7 @@ export default function Nav() {
               <div className="absolute top-full mt-2 left-0 right-0 bg-white border border-[var(--color-border-soft)] rounded-md shadow-md z-50 max-h-80 overflow-y-auto">
                 {matches.length === 0 ? (
                   <p className="px-4 py-3 text-sm text-[var(--color-muted)] text-center">Sin resultados</p>
-                ) : (
-                  matches.map((p) => (
-                    <Link
-                      key={p.id}
-                      href={`/producto/${p.id}`}
-                      onClick={() => { setShowDropdown(false); setQuery(""); }}
-                      className="flex items-center gap-3 px-4 py-3 hover:bg-[var(--color-surface)] border-b border-[var(--color-border-soft)] last:border-b-0 transition-colors"
-                    >
-                      <div className="w-8 h-8 bg-[var(--color-surface-warm)] rounded flex items-center justify-center text-[var(--color-meta)] shrink-0">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
-                      </div>
-                      <div><p className="text-sm font-medium">{p.name}</p><p className="text-xs text-[var(--color-muted)]">${formatPrice(p.price)}</p></div>
-                    </Link>
-                  ))
-                )}
+                ) : null}
               </div>
             )}
           </div>

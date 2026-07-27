@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Order, STATUS_NEXT } from "@/types";
+import { Order } from "@/types";
+import { STATUS_NEXT } from "@/types";
 
 type Props = {
   order: Order;

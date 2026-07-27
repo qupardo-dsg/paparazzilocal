@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { products as initialProducts, stockHistory as initialHistory } from "@/data/products";
-import { CATEGORIES, StockHistoryEntry, Product } from "@/types";
+import { CATEGORIES, StockMovement, Product } from "@/types";
 import Topbar from "@/components/admin/topbar";
 import { formatPrice } from "@/lib/utils";
 import ProductImage from "@/components/shop/product-image";
@@ -14,7 +14,7 @@ type InvSortField = keyof Product | "level";
 
 export default function AdminInventoryPage() {
   const [products, setProducts] = useState(initialProducts);
-  const [history, setHistory] = useState<StockHistoryEntry[]>(initialHistory);
+  const [history, setHistory] = useState<StockMovement[]>(initialHistory);
   const [search, setSearch] = useState("");
   const [catFilter, setCatFilter] = useState("");
   const [sortField, setSortField] = useState<InvSortField | null>(null);
@@ -94,8 +94,8 @@ export default function AdminInventoryPage() {
     if (!p) return;
 
     const newStock = Math.max(0, p.stock + amount);
-    const entry: StockHistoryEntry = {
-      date: now(),
+    const entry: StockMovement = {
+      createdAt: now(),
       productId: p.id,
       oldStock: p.stock,
       newStock,
@@ -137,7 +137,7 @@ export default function AdminInventoryPage() {
                 <tbody>
                   {paginatedHistory.map((h, i) => (
                     <tr key={i} className="hover:bg-[var(--color-surface)]">
-                      <td className="px-5 py-3 text-xs text-[var(--color-meta)] font-mono">{h.date}</td>
+                      <td className="px-5 py-3 text-xs text-[var(--color-meta)] font-mono">{h.createdAt}</td>
                       <td className="px-5 py-3 text-sm font-semibold">{productMap.get(h.productId) || `#${h.productId}`}</td>
                       <td className="px-5 py-3 text-sm">{h.oldStock}</td>
                       <td className="px-5 py-3 text-sm">{h.newStock}</td>

@@ -1,51 +1,5 @@
-import { Product, Order, StockHistoryEntry } from "@/types";
+import { Product, StockMovement } from "@/types";
 
-export const products: Product[] = [
-  { id: 1, name: "Eau de Parfum Intense", category: "Perfumes", price: 24990, stock: 15, sku: "PERF-001", updatedAt: "2026-07-25" },
-  { id: 2, name: "Cologne Fresh 50ml", category: "Perfumes", price: 18990, stock: 22, sku: "PERF-002", updatedAt: "2026-07-24" },
-  { id: 3, name: "Perfume Floral Dream", category: "Perfumes", price: 29990, stock: 8, sku: "PERF-003", updatedAt: "2026-07-26" },
-  { id: 4, name: "Urban Backpack 20L", category: "Mochilas", price: 35990, stock: 10, sku: "MOCH-001", updatedAt: "2026-07-22" },
-  { id: 5, name: "Mini Crossbody Bag", category: "Mochilas", price: 21990, stock: 18, sku: "MOCH-002", updatedAt: "2026-07-25" },
-  { id: 6, name: "Trekking 40L Mochila", category: "Mochilas", price: 45990, stock: 5, sku: "MOCH-003", updatedAt: "2026-07-23" },
-  { id: 7, name: "Oso Teddy 30cm", category: "Peluches", price: 9990, stock: 30, sku: "PELU-001", updatedAt: "2026-07-20" },
-  { id: 8, name: "Conejo Soft Pink", category: "Peluches", price: 11990, stock: 25, sku: "PELU-002", updatedAt: "2026-07-21" },
-  { id: 9, name: "Dinosaurio Verde", category: "Peluches", price: 13990, stock: 12, sku: "PELU-003", updatedAt: "2026-07-22" },
-  { id: 10, name: "Collar Minimalista Plata", category: "Joyería", price: 18990, stock: 7, sku: "JOYA-001", updatedAt: "2026-07-24" },
-  { id: 11, name: "Anillo Elegant Oro", category: "Joyería", price: 24990, stock: 14, sku: "JOYA-002", updatedAt: "2026-07-25" },
-  { id: 12, name: "Aretes Perla Natural", category: "Joyería", price: 15990, stock: 20, sku: "JOYA-003", updatedAt: "2026-07-23" },
-  { id: 13, name: "Lipstick Matte Rojo", category: "Maquillaje", price: 7990, stock: 28, sku: "MAQU-001", updatedAt: "2026-07-26" },
-  { id: 14, name: "Palette Nude 12 tonos", category: "Maquillaje", price: 15990, stock: 11, sku: "MAQU-002", updatedAt: "2026-07-24" },
-  { id: 15, name: "Máscara de Pestañas", category: "Maquillaje", price: 9990, stock: 16, sku: "MAQU-003", updatedAt: "2026-07-25" },
-  { id: 16, name: "Base Líquida SPF15", category: "Maquillaje", price: 12990, stock: 9, sku: "MAQU-004", updatedAt: "2026-07-26" },
-  { id: 17, name: "Eau de Toilette Cítrico", category: "Perfumes", price: 15990, stock: 19, sku: "PERF-004", updatedAt: "2026-07-21" },
-  { id: 18, name: "Mochila Escolar Classic", category: "Mochilas", price: 28990, stock: 13, sku: "MOCH-004", updatedAt: "2026-07-22" },
-  { id: 19, name: "Gatito Plush 25cm", category: "Peluches", price: 8990, stock: 27, sku: "PELU-004", updatedAt: "2026-07-20" },
-  { id: 20, name: "Pulsera Acero Inox", category: "Joyería", price: 11990, stock: 22, sku: "JOYA-004", updatedAt: "2026-07-25" },
-  { id: 21, name: "Rubor en Crema", category: "Maquillaje", price: 10990, stock: 14, sku: "MAQU-005", updatedAt: "2026-07-24" },
-  { id: 22, name: "Perfume Amaderado 100ml", category: "Perfumes", price: 34990, stock: 6, sku: "PERF-005", updatedAt: "2026-07-26" },
-  { id: 23, name: "Bolso Deportivo", category: "Mochilas", price: 31990, stock: 9, sku: "MOCH-005", updatedAt: "2026-07-23" },
-  { id: 24, name: "Elefante Peluche XL", category: "Peluches", price: 19990, stock: 4, sku: "PELU-005", updatedAt: "2026-07-19" },
-];
+export const products: Product[] = [];
 
-export const orders: Order[] = [
-  { id: "#PZ-001", customer: "María González", items: 3, total: 56970, status: "Entregado", date: "2026-07-25", productIds: [1, 10, 14], lineItems: [{ productId: 1, quantity: 1, price: 24990 }, { productId: 10, quantity: 1, price: 18990 }, { productId: 14, quantity: 1, price: 12990 }] },
-  { id: "#PZ-002", customer: "Carlos Ruiz", items: 1, total: 24990, status: "En camino", date: "2026-07-25", productIds: [4], lineItems: [{ productId: 4, quantity: 1, price: 24990 }] },
-  { id: "#PZ-003", customer: "Ana Martínez", items: 2, total: 33980, status: "Pendiente", date: "2026-07-26", productIds: [7, 13], lineItems: [{ productId: 7, quantity: 1, price: 9990 }, { productId: 13, quantity: 1, price: 23990 }] },
-  { id: "#PZ-004", customer: "Pedro López", items: 5, total: 89950, status: "Entregado", date: "2026-07-24", productIds: [2, 5, 11, 15, 20], lineItems: [{ productId: 2, quantity: 1, price: 18990 }, { productId: 5, quantity: 1, price: 21990 }, { productId: 11, quantity: 1, price: 24990 }, { productId: 15, quantity: 1, price: 9990 }, { productId: 20, quantity: 1, price: 11990 }] },
-  { id: "#PZ-005", customer: "Sofía Vargas", items: 4, total: 61980, status: "En camino", date: "2026-07-26", productIds: [3, 8, 17], lineItems: [{ productId: 3, quantity: 1, price: 29990 }, { productId: 8, quantity: 1, price: 11990 }, { productId: 17, quantity: 1, price: 15990 }] },
-  { id: "#PZ-006", customer: "Diego Herrera", items: 2, total: 27980, status: "Cancelado", date: "2026-07-23", productIds: [6, 22], lineItems: [{ productId: 6, quantity: 1, price: 9990 }, { productId: 22, quantity: 1, price: 17990 }] },
-  { id: "#PZ-007", customer: "Camila Rojas", items: 1, total: 7990, status: "Pendiente", date: "2026-07-26", productIds: [13], lineItems: [{ productId: 13, quantity: 1, price: 7990 }] },
-  { id: "#PZ-008", customer: "Jorge Medina", items: 3, total: 52970, status: "Entregado", date: "2026-07-22", productIds: [9, 16, 21], lineItems: [{ productId: 9, quantity: 1, price: 13990 }, { productId: 16, quantity: 1, price: 15990 }, { productId: 21, quantity: 1, price: 22990 }] },
-  { id: "#PZ-009", customer: "Valentina Díaz", items: 6, total: 124900, status: "En camino", date: "2026-07-25", productIds: [1, 4, 10, 14, 18, 23], lineItems: [{ productId: 1, quantity: 1, price: 24990 }, { productId: 4, quantity: 1, price: 35990 }, { productId: 10, quantity: 1, price: 18990 }, { productId: 14, quantity: 1, price: 15990 }, { productId: 18, quantity: 1, price: 28990 }, { productId: 23, quantity: 1, price: 31990 }] },
-  { id: "#PZ-010", customer: "Andrés Castro", items: 2, total: 31980, status: "Pendiente", date: "2026-07-26", productIds: [19, 24], lineItems: [{ productId: 19, quantity: 1, price: 15990 }, { productId: 24, quantity: 1, price: 15990 }] },
-];
-
-export const stockHistory: StockHistoryEntry[] = [
-  { date: "2026-07-26 14:30", productId: 3, oldStock: 5, newStock: 8, reason: "Reposición de proveedor" },
-  { date: "2026-07-26 11:15", productId: 13, oldStock: 30, newStock: 28, reason: "Venta realizada" },
-  { date: "2026-07-25 16:45", productId: 6, oldStock: 2, newStock: 5, reason: "Reposición de proveedor" },
-  { date: "2026-07-25 09:20", productId: 1, oldStock: 18, newStock: 15, reason: "Venta realizada" },
-  { date: "2026-07-24 15:00", productId: 10, oldStock: 10, newStock: 7, reason: "Venta realizada" },
-  { date: "2026-07-24 10:30", productId: 22, oldStock: 3, newStock: 6, reason: "Reposición de proveedor" },
-  { date: "2026-07-23 12:00", productId: 4, oldStock: 12, newStock: 10, reason: "Venta realizada" },
-];
+export const stockHistory: StockMovement[] = [];
