@@ -114,7 +114,7 @@ export default function Nav() {
             return (
               <Link
                 key={cat}
-                href={`/catalogo/${cat.toLowerCase()}`}
+                href={`/catalogo/${cat.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")}`}
                 className={`relative text-[15px] font-[family-name:var(--font-display)] font-medium whitespace-nowrap px-1 py-[14px] transition-colors duration-150 ${
                   active
                     ? "text-[var(--color-accent)] after:content-[''] after:absolute after:bottom-0.5 after:left-0 after:w-full after:h-0.5 after:bg-[var(--color-accent)]"
@@ -141,7 +141,7 @@ export default function Nav() {
           </div>
           <Link href="/" onClick={() => setOpen(false)} className="text-white text-2xl py-3 border-b border-white/10">Inicio</Link>
           {CATEGORIES.map((cat) => (
-            <Link key={cat} href={`/catalogo/${cat.toLowerCase()}`} onClick={() => setOpen(false)} className="text-white text-2xl py-3 border-b border-white/10">
+            <Link key={cat} href={`/catalogo/${cat.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")}`} onClick={() => setOpen(false)} className="text-white text-2xl py-3 border-b border-white/10">
               {cat}
             </Link>
           ))}

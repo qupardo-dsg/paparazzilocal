@@ -9,7 +9,8 @@ import ProductCard from "@/components/shop/product-card";
 import FilterSidebar from "@/components/shop/filter-sidebar";
 
 export default function CatalogContent({ categoria }: { categoria: string }) {
-  const catName = CATEGORIES.find((c) => c.toLowerCase() === categoria);
+  const norm = (s: string) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  const catName = CATEGORIES.find((c) => norm(c) === norm(categoria));
   if (!catName) notFound();
 
   const [sort, setSort] = useState("default");

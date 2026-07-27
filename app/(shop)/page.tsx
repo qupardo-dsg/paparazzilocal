@@ -54,7 +54,7 @@ export default function LandingPage() {
           {CATEGORIES.map((cat) => (
             <Link
               key={cat}
-              href={`/catalogo/${cat.toLowerCase()}`}
+              href={`/catalogo/${cat.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")}`}
               className="flex flex-col items-center text-center gap-4 p-6 bg-[var(--color-surface)] border border-[var(--color-border-soft)] rounded-xl shadow-sm hover:-translate-y-1 hover:shadow-md transition-all duration-200"
             >
               <div className="w-16 h-16 flex items-center justify-center bg-[var(--color-surface-warm)] rounded-lg">

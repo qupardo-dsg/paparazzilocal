@@ -25,7 +25,7 @@ export default function ProductDetail({ id }: { id: string }) {
         <nav className="text-sm text-[var(--color-muted)]">
           <Link href="/" className="hover:text-[var(--color-fg)]">Inicio</Link>
           {" / "}
-          <Link href={`/catalogo/${product.category.toLowerCase()}`} className="hover:text-[var(--color-fg)]">
+          <Link href={`/catalogo/${(product.category || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")}`} className="hover:text-[var(--color-fg)]">
             {product.category}
           </Link>
           {" / "}
