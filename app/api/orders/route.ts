@@ -11,7 +11,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const { customer, total, items } = await request.json();
+  const { customer, total, items, shippingZone } = await request.json();
   const id = `#PZ-${String(Date.now()).slice(-6)}`;
 
   const order = await prisma.order.create({
@@ -19,6 +19,7 @@ export async function POST(request: Request) {
       id,
       customer,
       total,
+      shippingZone,
       status: "En espera de confirmación",
       items: {
         create: items.map((i: { productId: number; quantity: number; price: number }) => ({

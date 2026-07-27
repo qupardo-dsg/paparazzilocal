@@ -27,6 +27,9 @@ export default function OrderDetailModal({ order, onClose }: Props) {
           <div><p className="text-xs text-[var(--color-muted)] uppercase tracking-wider">Fecha</p><p className="text-sm">{order.createdAt?.split("T")[0]}</p></div>
           <div><p className="text-xs text-[var(--color-muted)] uppercase tracking-wider">Estado</p><StatusBadge status={order.status} /></div>
           <div><p className="text-xs text-[var(--color-muted)] uppercase tracking-wider">Total</p><p className="text-sm font-bold">${formatPrice(order.total)}</p></div>
+          {order.shippingZone && (
+            <div className="col-span-2"><p className="text-xs text-[var(--color-muted)] uppercase tracking-wider">Zona de envío</p><p className="text-sm font-medium">{order.shippingZone}</p></div>
+          )}
         </div>
 
         <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--color-muted)] mb-3">Productos comprados</h3>
