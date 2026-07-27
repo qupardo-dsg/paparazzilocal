@@ -6,3 +6,5 @@ public/uploads/*
 
 /lib/generated/prisma
 .agents/
+.env
+dev.db
