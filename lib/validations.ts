@@ -19,8 +19,6 @@ export function validateProduct(data: any, existingSku?: string): ValidationErro
   }
   if (!data.sku?.trim()) {
     errors.push({ field: "sku", message: "El SKU es obligatorio" });
-  } else if (data.sku.trim() !== existingSku) {
-    errors.push({ field: "sku", message: "SKU duplicado — será verificado contra la base de datos" });
   }
 
   return errors;
