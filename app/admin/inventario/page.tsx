@@ -103,7 +103,7 @@ export default function AdminInventoryPage() {
     };
 
     setProducts((prev) =>
-      prev.map((pr) => (pr.id === p.id ? { ...pr, stock: newStock, updated: new Date().toISOString().split("T")[0] } : pr))
+      prev.map((pr) => (pr.id === p.id ? { ...pr, stock: newStock, updatedAt: new Date().toISOString().split("T")[0] } : pr))
     );
     setHistory((prev) => [entry, ...prev]);
     setHistoryPage(1);
@@ -214,7 +214,7 @@ export default function AdminInventoryPage() {
                       </div>
                     </td>
                     <td className="px-5 py-3 text-sm">${formatPrice(p.price)}</td>
-                    <td className="px-5 py-3 text-xs text-[var(--color-meta)]">{p.updated}</td>
+                    <td className="px-5 py-3 text-xs text-[var(--color-meta)]">{p.updatedAt?.split("T")[0] || "—"}</td>
                     <td className="px-5 py-3">
                       <button onClick={() => openStockModal(p.id)} className="text-sm text-[var(--color-muted)] hover:text-[var(--color-fg)]">Ajustar</button>
                     </td>
