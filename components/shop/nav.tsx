@@ -35,7 +35,7 @@ export default function Nav() {
         <div className="flex items-center justify-between w-full max-w-7xl mx-auto px-4 lg:px-16 gap-4">
           <Link href="/" className="flex items-center gap-3 shrink-0 text-white text-xl font-[family-name:var(--font-display)] font-medium tracking-wide">
             <img src="/logo.png" alt="PaparazziLocal" className="h-10 w-auto" />
-            PaparazziLocal
+            PAPARAZZILOCAL
           </Link>
 
           <div ref={ref} className="hidden lg:block flex-1 max-w-[400px] relative">
@@ -90,7 +90,7 @@ export default function Nav() {
       </div>
 
       {/* Bottom row: categories */}
-      <div className="hidden lg:block border-t border-white/[0.06]">
+      <div className="hidden lg:block border-t border-white/[0.06] bg-[var(--color-accent)]">
         <div className="max-w-7xl mx-auto px-4 lg:px-16 flex items-center gap-5 overflow-x-auto">
           {CATEGORIES.map((cat) => {
             const active = cat === currentCat;
@@ -100,8 +100,8 @@ export default function Nav() {
                 href={`/catalogo/${cat.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")}`}
                 className={`relative text-[15px] font-[family-name:var(--font-display)] font-medium whitespace-nowrap px-1 py-[14px] transition-colors duration-150 ${
                   active
-                    ? "text-[var(--color-accent)] after:content-[''] after:absolute after:bottom-0.5 after:left-0 after:w-full after:h-0.5 after:bg-[var(--color-accent)]"
-                    : "text-white hover:text-white/60"
+                    ? "text-[var(--color-accent-on)] after:content-[''] after:absolute after:bottom-0.5 after:left-0 after:w-full after:h-0.5 after:bg-[var(--color-accent-on)]"
+                    : "text-[var(--color-accent-on)]/70 hover:text-[var(--color-accent-on)]"
                 }`}
               >
                 {cat}
