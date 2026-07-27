@@ -1,13 +1,13 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
+import bcrypt from "bcryptjs";
+import { prisma } from "./db";
 
-const SECRET = new TextEncoder().encode(
-  process.env.ADMIN_SECRET || "cambiar-en-produccion-secreto-largo"
-);
+const SECRET = new TextEncoder().encode(process.env.ADMIN_SECRET || "cambiar-en-produccion");
 const COOKIE_NAME = "admin_session";
 
-export async function createSession() {
-  const token = await new SignJWT({ role: "admin" })
+export async function createSession(userId: number, role: string) {
+  const token = await new SignJWT({ userId, role })
     .setProtectedHeader({ alg: "HS256" })
     .setExpirationTime("8h")
     .sign(SECRET);
@@ -22,13 +22,13 @@ export async function createSession() {
   });
 }
 
-export async function getSession() {
+export async function getSession(): Promise<{ userId: number; role: string } | null> {
   const cookieStore = await cookies();
   const token = cookieStore.get(COOKIE_NAME)?.value;
   if (!token) return null;
   try {
     const { payload } = await jwtVerify(token, SECRET);
-    return payload;
+    return payload as { userId: number; role: string };
   } catch {
     return null;
   }
@@ -39,7 +39,14 @@ export async function destroySession() {
   cookieStore.delete(COOKIE_NAME);
 }
 
-export function isAdmin(password: string): boolean {
-  const adminPassword = process.env.ADMIN_PASSWORD || "admin123";
-  return password === adminPassword;
+export async function verifyLogin(email: string, password: string) {
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user) return null;
+  const valid = await bcrypt.compare(password, user.password);
+  if (!valid) return null;
+  return user;
+}
+
+export async function hashPassword(password: string) {
+  return bcrypt.hash(password, 10);
 }
