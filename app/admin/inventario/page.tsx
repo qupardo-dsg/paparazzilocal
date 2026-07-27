@@ -2,26 +2,63 @@
 
 import { useState, useMemo } from "react";
 import { products as initialProducts, stockHistory as initialHistory } from "@/data/products";
-import { CATEGORIES, StockHistoryEntry } from "@/types";
+import { CATEGORIES, StockHistoryEntry, Product } from "@/types";
 import Topbar from "@/components/admin/topbar";
 import { formatPrice } from "@/lib/utils";
 
 const HISTORY_PER_PAGE = 5;
+const INV_PER_PAGE = 10;
+
+type InvSortField = keyof Product | "level";
 
 export default function AdminInventoryPage() {
   const [products, setProducts] = useState(initialProducts);
   const [history, setHistory] = useState<StockHistoryEntry[]>(initialHistory);
   const [search, setSearch] = useState("");
   const [catFilter, setCatFilter] = useState("");
+  const [sortField, setSortField] = useState<InvSortField | null>(null);
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+  const [invPage, setInvPage] = useState(1);
   const [historyPage, setHistoryPage] = useState(1);
   const [stockModal, setStockModal] = useState<{ open: boolean; productId?: number }>({ open: false });
   const [stockForm, setStockForm] = useState({ current: 0, change: "", reason: "" });
 
-  const filtered = products.filter((p) => {
-    if (catFilter && p.category !== catFilter) return false;
-    if (search && !p.name.toLowerCase().includes(search.toLowerCase())) return false;
-    return true;
-  });
+  const toggleSort = (field: InvSortField) => {
+    if (sortField === field) {
+      if (sortDir === "asc") setSortDir("desc");
+      else { setSortField(null); setSortDir("asc"); }
+    } else {
+      setSortField(field);
+      setSortDir("asc");
+    }
+  };
+
+  const sortIcon = (field: InvSortField) => {
+    if (sortField !== field) return <span className="text-[var(--color-meta)] ml-1">⇅</span>;
+    return <span className="text-[var(--color-fg)] ml-1">{sortDir === "asc" ? "▲" : "▼"}</span>;
+  };
+
+  const filtered = useMemo(() => {
+    let result = products.filter((p) => {
+      if (catFilter && p.category !== catFilter) return false;
+      if (search && !p.name.toLowerCase().includes(search.toLowerCase())) return false;
+      return true;
+    });
+    if (sortField) {
+      result = [...result].sort((a, b) => {
+        const getVal = (p: Product, f: InvSortField) => {
+          if (f === "level") return (p.stock / 30) * 100;
+          return p[f];
+        };
+        const av = getVal(a, sortField);
+        const bv = getVal(b, sortField);
+        if (typeof av === "string" && typeof bv === "string") return sortDir === "asc" ? av.localeCompare(bv) : bv.localeCompare(av);
+        if (typeof av === "number" && typeof bv === "number") return sortDir === "asc" ? av - bv : bv - av;
+        return 0;
+      });
+    }
+    return result;
+  }, [products, catFilter, search, sortField, sortDir]);
 
   const productMap = useMemo(() => {
     const map = new Map<number, string>();
@@ -32,6 +69,10 @@ export default function AdminInventoryPage() {
   const totalHistoryPages = Math.ceil(history.length / HISTORY_PER_PAGE);
   const currentHPage = Math.max(1, Math.min(historyPage, totalHistoryPages || 1));
   const paginatedHistory = history.slice((currentHPage - 1) * HISTORY_PER_PAGE, currentHPage * HISTORY_PER_PAGE);
+
+  const totalInvPages = Math.ceil(filtered.length / INV_PER_PAGE);
+  const currentInvPage = Math.max(1, Math.min(invPage, totalInvPages || 1));
+  const paginatedInventory = filtered.slice((currentInvPage - 1) * INV_PER_PAGE, currentInvPage * INV_PER_PAGE);
 
   const openStockModal = (id: number) => {
     const p = products.find((pr) => pr.id === id);
@@ -137,9 +178,9 @@ export default function AdminInventoryPage() {
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2 bg-[var(--color-surface-warm)] border border-[var(--color-border-soft)] rounded-md px-3 py-2">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input type="text" placeholder="Buscar producto..." value={search} onChange={(e) => setSearch(e.target.value)} className="bg-transparent outline-none text-sm w-40" />
+                <input type="text" placeholder="Buscar producto..." value={search} onChange={(e) => { setSearch(e.target.value); setInvPage(1); }} className="bg-transparent outline-none text-sm w-40" />
               </div>
-              <select value={catFilter} onChange={(e) => setCatFilter(e.target.value)} className="bg-[var(--color-surface-elevated)] rounded-md px-3 py-2 text-sm outline-none cursor-pointer">
+              <select value={catFilter} onChange={(e) => { setCatFilter(e.target.value); setInvPage(1); }} className="bg-[var(--color-surface-elevated)] rounded-md px-3 py-2 text-sm outline-none cursor-pointer">
                 <option value="">Todas las categorías</option>
                 {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
               </select>
@@ -148,17 +189,17 @@ export default function AdminInventoryPage() {
           <table className="w-full">
             <thead>
               <tr className="text-left">
-                <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)]">Producto</th>
-                <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)]">SKU</th>
-                <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)]">Stock</th>
-                <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)]">Nivel</th>
-                <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)]">Precio</th>
-                <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)]">Última actualización</th>
+                <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)] cursor-pointer select-none hover:text-[var(--color-fg)]" onClick={() => toggleSort("name")}>Producto{sortIcon("name")}</th>
+                <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)] cursor-pointer select-none hover:text-[var(--color-fg)]" onClick={() => toggleSort("sku")}>SKU{sortIcon("sku")}</th>
+                <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)] cursor-pointer select-none hover:text-[var(--color-fg)]" onClick={() => toggleSort("stock")}>Stock{sortIcon("stock")}</th>
+                <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)] cursor-pointer select-none hover:text-[var(--color-fg)]" onClick={() => toggleSort("level")}>Nivel{sortIcon("level")}</th>
+                <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)] cursor-pointer select-none hover:text-[var(--color-fg)]" onClick={() => toggleSort("price")}>Precio{sortIcon("price")}</th>
+                <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)] cursor-pointer select-none hover:text-[var(--color-fg)]" onClick={() => toggleSort("updated")}>Última actualización{sortIcon("updated")}</th>
                 <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)] w-28">Acciones</th>
               </tr>
             </thead>
             <tbody>
-              {filtered.map((p) => {
+              {paginatedInventory.map((p) => {
                 const pct = Math.min(100, (p.stock / 30) * 100);
                 const barColor = p.stock <= 5 ? "var(--color-danger)" : p.stock <= 10 ? "var(--color-warn)" : "var(--color-success)";
                 return (
@@ -182,6 +223,18 @@ export default function AdminInventoryPage() {
             </tbody>
           </table>
         </div>
+
+        {totalInvPages > 1 && (
+          <div className="flex items-center justify-center gap-1 mt-6">
+            <button onClick={() => setInvPage(1)} disabled={currentInvPage <= 1} className="min-w-[32px] h-8 border border-[var(--color-border-soft)] rounded text-xs font-semibold flex items-center justify-center disabled:opacity-30 hover:border-[var(--color-accent)] transition-colors">«</button>
+            <button onClick={() => setInvPage(currentInvPage - 1)} disabled={currentInvPage <= 1} className="min-w-[32px] h-8 border border-[var(--color-border-soft)] rounded text-xs font-semibold flex items-center justify-center disabled:opacity-30 hover:border-[var(--color-accent)] transition-colors">‹</button>
+            <span className="text-xs text-[var(--color-meta)] px-2">
+              {(currentInvPage - 1) * INV_PER_PAGE + 1}–{Math.min(currentInvPage * INV_PER_PAGE, filtered.length)} de {filtered.length}
+            </span>
+            <button onClick={() => setInvPage(currentInvPage + 1)} disabled={currentInvPage >= totalInvPages} className="min-w-[32px] h-8 border border-[var(--color-border-soft)] rounded text-xs font-semibold flex items-center justify-center disabled:opacity-30 hover:border-[var(--color-accent)] transition-colors">›</button>
+            <button onClick={() => setInvPage(totalInvPages)} disabled={currentInvPage >= totalInvPages} className="min-w-[32px] h-8 border border-[var(--color-border-soft)] rounded text-xs font-semibold flex items-center justify-center disabled:opacity-30 hover:border-[var(--color-accent)] transition-colors">»</button>
+          </div>
+        )}
 
         {/* Stock adjust modal */}
         {stockModal.open && (

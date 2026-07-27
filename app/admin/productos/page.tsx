@@ -26,6 +26,8 @@ function AdminProductsContent() {
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [filter, setFilter] = useState("");
   const [search, setSearch] = useState("");
+  const [sortField, setSortField] = useState<keyof Product | null>(null);
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
   const [modal, setModal] = useState<{ open: boolean; editId?: number }>({ open: false });
   const [form, setForm] = useState({ name: "", category: "", price: "", stock: "", sku: "" });
 
@@ -34,16 +36,45 @@ function AdminProductsContent() {
     return new Set(active.flatMap((o) => o.productIds));
   }, []);
 
+  const toggleSort = (field: keyof Product) => {
+    if (sortField === field) {
+      if (sortDir === "asc") setSortDir("desc");
+      else { setSortField(null); setSortDir("asc"); }
+    } else {
+      setSortField(field);
+      setSortDir("asc");
+    }
+    setPage(1);
+    goToPage(1);
+  };
+
+  const sortIcon = (field: keyof Product) => {
+    if (sortField !== field) return <span className="text-[var(--color-meta)] ml-1">⇅</span>;
+    return <span className="text-[var(--color-fg)] ml-1">{sortDir === "asc" ? "▲" : "▼"}</span>;
+  };
+
   const counts = CATEGORIES.reduce(
     (acc, cat) => ({ ...acc, [cat]: products.filter((p) => p.category === cat).length }),
     {} as Record<string, number>
   );
 
-  const filtered = products.filter((p) => {
-    if (filter && p.category !== filter) return false;
-    if (search && !p.name.toLowerCase().includes(search.toLowerCase())) return false;
-    return true;
-  });
+  const filtered = useMemo(() => {
+    let result = products.filter((p) => {
+      if (filter && p.category !== filter) return false;
+      if (search && !p.name.toLowerCase().includes(search.toLowerCase())) return false;
+      return true;
+    });
+    if (sortField) {
+      result = [...result].sort((a, b) => {
+        const av = a[sortField];
+        const bv = b[sortField];
+        if (typeof av === "string" && typeof bv === "string") return sortDir === "asc" ? av.localeCompare(bv) : bv.localeCompare(av);
+        if (typeof av === "number" && typeof bv === "number") return sortDir === "asc" ? av - bv : bv - av;
+        return 0;
+      });
+    }
+    return result;
+  }, [products, filter, search, sortField, sortDir]);
 
   const totalPages = Math.ceil(filtered.length / PER_PAGE);
   const currentPage = Math.max(1, Math.min(page, totalPages || 1));
@@ -142,10 +173,10 @@ function AdminProductsContent() {
           <table className="w-full">
             <thead>
               <tr className="text-left">
-                <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)]">Producto</th>
-                <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)]">Categoría</th>
-                <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)]">Precio</th>
-                <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)]">Stock</th>
+                <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)] cursor-pointer select-none hover:text-[var(--color-fg)]" onClick={() => toggleSort("name")}>Producto{sortIcon("name")}</th>
+                <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)] cursor-pointer select-none hover:text-[var(--color-fg)]" onClick={() => toggleSort("category")}>Categoría{sortIcon("category")}</th>
+                <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)] cursor-pointer select-none hover:text-[var(--color-fg)]" onClick={() => toggleSort("price")}>Precio{sortIcon("price")}</th>
+                <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)] cursor-pointer select-none hover:text-[var(--color-fg)]" onClick={() => toggleSort("stock")}>Stock{sortIcon("stock")}</th>
                 <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)] w-44">Acciones</th>
               </tr>
             </thead>
