@@ -108,12 +108,22 @@ export default function AdminInventoryPage() {
                 </tbody>
               </table>
               {totalHistoryPages > 1 && (
-                <div className="flex items-center justify-center gap-2 px-5 py-3 border-t border-[var(--color-border-soft)]">
-                  <button onClick={() => setHistoryPage(currentHPage - 1)} disabled={currentHPage <= 1} className="px-3 py-1 text-sm border rounded-md disabled:opacity-30 hover:bg-[var(--color-surface)]">Anterior</button>
-                  {Array.from({ length: totalHistoryPages }, (_, i) => i + 1).map((p) => (
-                    <button key={p} onClick={() => setHistoryPage(p)} className={`w-7 h-7 text-xs rounded-md ${p === currentHPage ? "bg-[var(--color-accent)] text-[var(--color-accent-on)] font-semibold" : "hover:bg-[var(--color-surface)]"}`}>{p}</button>
-                  ))}
-                  <button onClick={() => setHistoryPage(currentHPage + 1)} disabled={currentHPage >= totalHistoryPages} className="px-3 py-1 text-sm border rounded-md disabled:opacity-30 hover:bg-[var(--color-surface)]">Siguiente</button>
+                <div className="flex items-center justify-center gap-1 px-5 py-3 border-t border-[var(--color-border-soft)]">
+                  <button onClick={() => setHistoryPage(1)} disabled={currentHPage <= 1} className="min-w-[32px] h-8 border border-[var(--color-border-soft)] rounded text-xs font-semibold flex items-center justify-center disabled:opacity-30 hover:border-[var(--color-accent)] transition-colors">
+                    «
+                  </button>
+                  <button onClick={() => setHistoryPage(currentHPage - 1)} disabled={currentHPage <= 1} className="min-w-[32px] h-8 border border-[var(--color-border-soft)] rounded text-xs font-semibold flex items-center justify-center disabled:opacity-30 hover:border-[var(--color-accent)] transition-colors">
+                    ‹
+                  </button>
+                  <span className="text-xs text-[var(--color-meta)] px-2">
+                    {(currentHPage - 1) * HISTORY_PER_PAGE + 1}–{Math.min(currentHPage * HISTORY_PER_PAGE, history.length)} de {history.length}
+                  </span>
+                  <button onClick={() => setHistoryPage(currentHPage + 1)} disabled={currentHPage >= totalHistoryPages} className="min-w-[32px] h-8 border border-[var(--color-border-soft)] rounded text-xs font-semibold flex items-center justify-center disabled:opacity-30 hover:border-[var(--color-accent)] transition-colors">
+                    ›
+                  </button>
+                  <button onClick={() => setHistoryPage(totalHistoryPages)} disabled={currentHPage >= totalHistoryPages} className="min-w-[32px] h-8 border border-[var(--color-border-soft)] rounded text-xs font-semibold flex items-center justify-center disabled:opacity-30 hover:border-[var(--color-accent)] transition-colors">
+                    »
+                  </button>
                 </div>
               )}
             </>
