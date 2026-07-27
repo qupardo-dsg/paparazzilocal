@@ -5,6 +5,7 @@ import { useState, useMemo } from "react";
 import { orders as initialOrders } from "@/data/products";
 import { Order, ORDER_STATUSES, STATUS_NEXT } from "@/types";
 import Topbar from "@/components/admin/topbar";
+import OrderStatusModal from "@/components/admin/order-status-modal";
 
 const PER_PAGE = 10;
 
@@ -15,6 +16,7 @@ export default function AdminOrdersPage() {
   const [statusFilter, setStatusFilter] = useState("");
   const [sortField, setSortField] = useState<keyof Order | null>(null);
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+  const [statusModal, setStatusModal] = useState<Order | null>(null);
 
   const pendingOrders = useMemo(() => orders.filter((o) => o.status === "Pendiente"), [orders]);
   const today = new Date().toISOString().split("T")[0];
@@ -69,10 +71,11 @@ export default function AdminOrdersPage() {
   const currentPage = Math.max(1, Math.min(page, totalPages || 1));
   const paginated = filtered.slice((currentPage - 1) * PER_PAGE, currentPage * PER_PAGE);
 
-  const updateStatus = (id: string) => {
+  const updateStatus = (id: string, note?: string) => {
     setOrders((prev) =>
       prev.map((o) => (o.id !== id ? o : { ...o, status: STATUS_NEXT[o.status] }))
     );
+    setStatusModal(null);
   };
 
   return (
@@ -106,7 +109,7 @@ export default function AdminOrdersPage() {
                       <p className="text-sm font-semibold">${o.total.toLocaleString("es-CL")}</p>
                       <p className="text-xs text-[var(--color-muted)]">{o.date}</p>
                     </div>
-                    <button onClick={() => updateStatus(o.id)} className="text-xs bg-[var(--color-accent)] text-[var(--color-accent-on)] rounded-full px-3 py-1 font-semibold hover:bg-[var(--color-accent-hover)] transition-colors">
+                    <button onClick={() => setStatusModal(o)} className="text-xs bg-[var(--color-accent)] text-[var(--color-accent-on)] rounded-full px-3 py-1 font-semibold hover:bg-[var(--color-accent-hover)] transition-colors">
                       Marcar enviado
                     </button>
                   </div>
@@ -199,7 +202,7 @@ export default function AdminOrdersPage() {
                     <td className="px-5 py-3 text-sm"><StatusBadge status={o.status} /></td>
                     <td className="px-5 py-3 text-xs text-[var(--color-meta)]">{o.date}</td>
                     <td className="px-5 py-3">
-                      <button onClick={() => updateStatus(o.id)} className="text-sm text-[var(--color-muted)] hover:text-[var(--color-fg)]">
+                      <button onClick={() => setStatusModal(o)} className="text-sm text-[var(--color-muted)] hover:text-[var(--color-fg)]">
                         Actualizar
                       </button>
                     </td>
@@ -222,6 +225,14 @@ export default function AdminOrdersPage() {
           </div>
         )}
       </div>
+
+      {statusModal && (
+        <OrderStatusModal
+          order={statusModal}
+          onClose={() => setStatusModal(null)}
+          onConfirm={updateStatus}
+        />
+      )}
     </>
   );
 }
