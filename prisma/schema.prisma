@@ -29,12 +29,13 @@ model Product {
 }
 
 model Order {
-  id        String      @id
-  customer  String
-  total     Int
-  status    String      @default("En espera de confirmación")
-  createdAt DateTime    @default(now())
-  items     OrderItem[]
+  id           String      @id
+  customer     String
+  total        Int
+  status       String      @default("En espera de confirmación")
+  shippingZone String?
+  createdAt    DateTime    @default(now())
+  items        OrderItem[]
 }
 
 model OrderItem {
