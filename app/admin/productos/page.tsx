@@ -9,7 +9,7 @@ import { formatPrice } from "@/lib/utils";
 import ProductImage from "@/components/shop/product-image";
 import ConfirmModal from "@/components/admin/confirm-modal";
 
-  const [loading, setLoading] = useState(true);
+export const dynamic = "force-dynamic";
 
 export default function AdminProductsPage() {
   return (
