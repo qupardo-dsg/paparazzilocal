@@ -5,6 +5,14 @@ import { CATEGORIES, Product, StockMovement } from "@/types";
 import Topbar from "@/components/admin/topbar";
 import { formatPrice } from "@/lib/utils";
 
+const STOCK_REASONS = [
+  "Reposición de proveedor",
+  "Ajuste de inventario",
+  "Producto dañado",
+  "Devolución",
+  "Otro",
+] as const;
+
 const HISTORY_PER_PAGE = 5;
 const INV_PER_PAGE = 10;
 
@@ -241,7 +249,10 @@ export default function AdminInventoryPage() {
                 </div>
                 <div className="flex flex-col gap-1">
                   <label className="text-sm font-semibold">Motivo</label>
-                  <textarea value={stockForm.reason} onChange={(e) => setStockForm({ ...stockForm, reason: e.target.value })} placeholder="Ej: reposición de proveedor, ajuste de inventario..." rows={2} className="border border-[var(--color-border-soft)] rounded-md px-3 py-2 outline-none focus:border-[var(--color-accent)] resize-y min-h-[56px]" />
+                  <select value={STOCK_REASONS.includes(stockForm.reason as any) ? stockForm.reason : ""} onChange={(e) => setStockForm({ ...stockForm, reason: e.target.value })} className="border border-[var(--color-border-soft)] rounded-md px-3 py-2 text-sm outline-none focus:border-[var(--color-accent)]">
+                    <option value="">Seleccionar motivo</option>
+                    {STOCK_REASONS.map((r) => <option key={r} value={r}>{r}</option>)}
+                  </select>
                 </div>
               </div>
               <div className="flex justify-end gap-3 mt-5 pt-4 border-t border-[var(--color-border-soft)]">
