@@ -4,10 +4,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const links = [
-  { href: "/admin", label: "Dashboard", icon: "M3 3h7v7H3V3zm14 0h7v7h-7V3zm-14 14h7v7H3v-7zm14 0h7v7h-7v-7z" },
-  { href: "/admin/productos", label: "Productos", icon: "M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" },
-  { href: "/admin/pedidos", label: "Pedidos", icon: "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" },
-  { href: "/admin/inventario", label: "Inventario", icon: "M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14" },
+  { href: "/admin", label: "Dashboard", key: "dashboard", icon: "M3 3h7v7H3V3zm14 0h7v7h-7V3zm-14 14h7v7H3v-7zm14 0h7v7h-7v-7z" },
+  { href: "/admin/productos", label: "Productos", key: "productos", icon: "M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" },
+  { href: "/admin/pedidos", label: "Pedidos", key: "pedidos", icon: "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" },
+  { href: "/admin/inventario", label: "Inventario", key: "inventario", icon: "M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14" },
+  { href: "/admin/usuarios", label: "Usuarios", key: "usuarios", icon: "M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2 M9 3a4 4 0 0 1 4 4M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" },
 ];
 
 export default function Sidebar() {
