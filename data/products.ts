@@ -1,4 +1,4 @@
-import { Product, Order } from "@/types";
+import { Product, Order, StockHistoryEntry } from "@/types";
 
 export const products: Product[] = [
   { id: 1, name: "Eau de Parfum Intense", category: "Perfumes", price: 24990, stock: 15, sku: "PERF-001", updated: "2026-07-25" },
@@ -38,4 +38,14 @@ export const orders: Order[] = [
   { id: "#PZ-008", customer: "Jorge Medina", items: 3, total: 52970, status: "Entregado", date: "2026-07-22", productIds: [9, 16, 21] },
   { id: "#PZ-009", customer: "Valentina Díaz", items: 6, total: 124900, status: "En camino", date: "2026-07-25", productIds: [1, 4, 10, 14, 18, 23] },
   { id: "#PZ-010", customer: "Andrés Castro", items: 2, total: 31980, status: "Pendiente", date: "2026-07-26", productIds: [19, 24] },
+];
+
+export const stockHistory: StockHistoryEntry[] = [
+  { date: "2026-07-26 14:30", productId: 3, oldStock: 5, newStock: 8, reason: "Reposición de proveedor" },
+  { date: "2026-07-26 11:15", productId: 13, oldStock: 30, newStock: 28, reason: "Venta realizada" },
+  { date: "2026-07-25 16:45", productId: 6, oldStock: 2, newStock: 5, reason: "Reposición de proveedor" },
+  { date: "2026-07-25 09:20", productId: 1, oldStock: 18, newStock: 15, reason: "Venta realizada" },
+  { date: "2026-07-24 15:00", productId: 10, oldStock: 10, newStock: 7, reason: "Venta realizada" },
+  { date: "2026-07-24 10:30", productId: 22, oldStock: 3, newStock: 6, reason: "Reposición de proveedor" },
+  { date: "2026-07-23 12:00", productId: 4, oldStock: 12, newStock: 10, reason: "Venta realizada" },
 ];

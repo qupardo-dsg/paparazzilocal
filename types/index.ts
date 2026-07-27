@@ -38,3 +38,11 @@ export const STATUS_NEXT: Record<OrderStatus, OrderStatus> = {
   Entregado: "Pendiente",
   Cancelado: "Pendiente",
 };
+
+export type StockHistoryEntry = {
+  date: string;
+  productId: number;
+  oldStock: number;
+  newStock: number;
+  reason: string;
+};
