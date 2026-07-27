@@ -8,7 +8,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const session = await getSession();
+  const session = await getSession(request);
   if (!session) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
 
   const { name, category, price, stock, sku, image } = await request.json();
@@ -16,25 +16,4 @@ export async function POST(request: Request) {
     data: { name, category, price: Number(price), stock: Number(stock), sku, image },
   });
   return NextResponse.json(product, { status: 201 });
-}
-
-export async function PUT(request: Request) {
-  const session = await getSession();
-  if (!session) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-
-  const { id, name, category, price, stock, sku, image } = await request.json();
-  const product = await prisma.product.update({
-    where: { id },
-    data: { name, category, price: Number(price), stock: Number(stock), sku, image },
-  });
-  return NextResponse.json(product);
-}
-
-export async function DELETE(request: Request) {
-  const session = await getSession();
-  if (!session) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-
-  const { id } = await request.json();
-  await prisma.product.delete({ where: { id } });
-  return NextResponse.json({ ok: true });
 }

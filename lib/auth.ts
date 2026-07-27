@@ -20,9 +20,23 @@ export async function createSession(userId: number, role: string) {
     maxAge: 60 * 60 * 8,
     path: "/",
   });
+
+  return token;
 }
 
-export async function getSession(): Promise<{ userId: number; role: string } | null> {
+export async function getSession(request?: Request): Promise<{ userId: number; role: string } | null> {
+  // Bearer token
+  if (request) {
+    const auth = request.headers.get("authorization");
+    if (auth?.startsWith("Bearer ")) {
+      try {
+        const { payload } = await jwtVerify(auth.slice(7), SECRET);
+        return payload as { userId: number; role: string };
+      } catch {}
+    }
+  }
+
+  // Cookie fallback
   const cookieStore = await cookies();
   const token = cookieStore.get(COOKIE_NAME)?.value;
   if (!token) return null;

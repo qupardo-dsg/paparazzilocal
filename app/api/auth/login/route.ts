@@ -12,6 +12,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Credenciales incorrectas" }, { status: 401 });
   }
 
-  await createSession(user.id, user.role);
-  return NextResponse.json({ ok: true, name: user.name, role: user.role });
+  const token = await createSession(user.id, user.role);
+
+  return NextResponse.json({
+    ok: true,
+    name: user.name,
+    role: user.role,
+    token,
+  });
 }
