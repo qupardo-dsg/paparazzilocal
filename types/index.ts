@@ -16,6 +16,7 @@ export type Product = {
   sku: string;
   updated: string;
   description?: string;
+  image?: string;
 };
 
 export type Order = {

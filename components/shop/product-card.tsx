@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Product } from "@/types";
 import { formatPrice, cn } from "@/lib/utils";
 import { useCart } from "./cart-context";
+import ProductImage from "./product-image";
 
 export default function ProductCard({ product, variant }: { product: Product; variant?: "grid" | "list" }) {
   const v = variant || "grid";
@@ -17,16 +18,12 @@ export default function ProductCard({ product, variant }: { product: Product; va
         isList && "grid grid-cols-[80px_1fr_auto] items-center gap-4 p-4 hover:translate-y-0"
       )}
     >
-      <div
-        className={cn(
-          "bg-gradient-to-br from-[var(--color-surface-warm)] to-[var(--color-surface)] flex items-center justify-center text-[var(--color-meta)]",
-          isList ? "w-20 h-20 rounded-md" : "aspect-square"
-        )}
-      >
-        <svg width={isList ? 24 : 48} height={isList ? 24 : 48} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2">
-          <rect x="3" y="3" width="18" height="18" rx="2" />
-        </svg>
-      </div>
+      <ProductImage
+        src={product.image}
+        alt={product.name}
+        size={isList ? "sm" : "xl"}
+        className="border-0 rounded-none"
+      />
       <div className={cn(!isList && "p-5")}>
         <p className="text-base font-[family-name:var(--font-display)] font-medium mb-2">{product.name}</p>
         {!isList && <p className="font-[family-name:var(--font-display)] text-lg mb-1">${formatPrice(product.price)}</p>}

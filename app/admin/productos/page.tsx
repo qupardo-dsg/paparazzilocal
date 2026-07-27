@@ -6,6 +6,7 @@ import { products as initialProducts, orders } from "@/data/products";
 import { CATEGORIES, Product } from "@/types";
 import Topbar from "@/components/admin/topbar";
 import { formatPrice } from "@/lib/utils";
+import ProductImage from "@/components/shop/product-image";
 
 let nextId = 25;
 const PER_PAGE = 10;
@@ -29,7 +30,7 @@ function AdminProductsContent() {
   const [sortField, setSortField] = useState<keyof Product | null>(null);
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
   const [modal, setModal] = useState<{ open: boolean; editId?: number }>({ open: false });
-  const [form, setForm] = useState({ name: "", category: "", price: "", stock: "", sku: "" });
+  const [form, setForm] = useState({ name: "", category: "", price: "", stock: "", sku: "", image: "" });
 
   const activeOrderProductIds = useMemo(() => {
     const active = orders.filter((o) => o.status === "Pendiente" || o.status === "En camino");
@@ -91,22 +92,22 @@ function AdminProductsContent() {
   const openModal = (id?: number) => {
     if (id) {
       const p = products.find((pr) => pr.id === id)!;
-      setForm({ name: p.name, category: p.category, price: String(p.price), stock: String(p.stock), sku: p.sku });
+      setForm({ name: p.name, category: p.category, price: String(p.price), stock: String(p.stock), sku: p.sku, image: p.image || "" });
       setModal({ open: true, editId: id });
     } else {
-      setForm({ name: "", category: "", price: "", stock: "", sku: "" });
+      setForm({ name: "", category: "", price: "", stock: "", sku: "", image: "" });
       setModal({ open: true });
     }
   };
 
   const save = () => {
-    const { name, category, price, stock, sku } = form;
+    const { name, category, price, stock, sku, image } = form;
     if (!name || !category || !price || !stock || !sku) return alert("Completa todos los campos");
     if (modal.editId) {
       setProducts((prev) =>
         prev.map((p) =>
           p.id === modal.editId
-            ? { ...p, name, category: category as Product["category"], price: Number(price), stock: Number(stock), sku, updated: today() }
+            ? { ...p, name, category: category as Product["category"], price: Number(price), stock: Number(stock), sku, image: image || undefined, updated: today() }
             : p
         )
       );
@@ -118,6 +119,7 @@ function AdminProductsContent() {
         price: Number(price),
         stock: Number(stock),
         sku,
+        image: image || undefined,
         updated: today(),
       };
       setProducts((prev) => [...prev, newProduct]);
@@ -185,9 +187,7 @@ function AdminProductsContent() {
                 <tr key={p.id} className="hover:bg-[var(--color-surface)]">
                   <td className="px-5 py-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-[var(--color-surface-warm)] rounded flex items-center justify-center text-[var(--color-meta)] shrink-0">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
-                      </div>
+                      <ProductImage src={p.image} alt={p.name} size="sm" />
                       <div>
                         <p className="text-sm font-semibold">{p.name}</p>
                         <p className="text-xs text-[var(--color-meta)]">{p.sku}</p>
@@ -257,6 +257,21 @@ function AdminProductsContent() {
                   <label className="text-sm font-semibold">SKU</label>
                   <input value={form.sku} onChange={(e) => setForm({ ...form, sku: e.target.value })} className="border border-[var(--color-border-soft)] rounded-md px-3 py-2 outline-none focus:border-[var(--color-accent)]" placeholder="Ej: PERF-001" />
                 </div>
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-sm font-semibold">Imagen</label>
+                <input type="file" accept="image/*" onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file || !modal.editId) return;
+                  const fd = new FormData();
+                  fd.append("file", file);
+                  const res = await fetch(`/api/products/${modal.editId}/image`, { method: "POST", body: fd });
+                  if (res.ok) {
+                    const { path } = await res.json();
+                    setForm({ ...form, image: path });
+                  }
+                }} className="border border-[var(--color-border-soft)] rounded-md px-3 py-2 text-sm outline-none file:mr-3 file:rounded-full file:border-0 file:bg-[var(--color-accent)] file:text-[var(--color-accent-on)] file:px-3 file:py-1 file:text-xs file:font-semibold hover:file:bg-[var(--color-accent-hover)]" />
+                {form.image && <p className="text-xs text-[var(--color-meta)]">{form.image}</p>}
               </div>
             </div>
             <div className="flex justify-end gap-3 mt-5 pt-4 border-t border-[var(--color-border-soft)]">

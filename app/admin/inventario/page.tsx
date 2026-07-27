@@ -5,6 +5,7 @@ import { products as initialProducts, stockHistory as initialHistory } from "@/d
 import { CATEGORIES, StockHistoryEntry, Product } from "@/types";
 import Topbar from "@/components/admin/topbar";
 import { formatPrice } from "@/lib/utils";
+import ProductImage from "@/components/shop/product-image";
 
 const HISTORY_PER_PAGE = 5;
 const INV_PER_PAGE = 10;

@@ -7,6 +7,7 @@ import { formatPrice } from "@/lib/utils";
 import ProductCard from "@/components/shop/product-card";
 import Button from "@/components/ui/button";
 import { useCart } from "@/components/shop/cart-context";
+import ProductImage from "@/components/shop/product-image";
 import { useState } from "react";
 
 export default function ProductDetail({ id }: { id: string }) {
@@ -35,11 +36,7 @@ export default function ProductDetail({ id }: { id: string }) {
 
       <div className="max-w-7xl mx-auto px-4 lg:px-16 pb-16">
         <div className="grid md:grid-cols-2 gap-16">
-          <div className="aspect-square bg-gradient-to-br from-[var(--color-surface-warm)] to-[var(--color-surface)] rounded-xl flex items-center justify-center text-[var(--color-meta)] border border-[var(--color-border-soft)]">
-            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2">
-              <rect x="3" y="3" width="18" height="18" rx="2" />
-            </svg>
-          </div>
+          <ProductImage src={product.image} alt={product.name} size="xl" />
           <div className="flex flex-col gap-6">
             <p className="text-sm uppercase tracking-widest text-[var(--color-accent)] font-medium">
               {product.category}
