@@ -195,7 +195,7 @@ export default function AdminInventoryPage() {
                 <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)] cursor-pointer select-none hover:text-[var(--color-fg)]" onClick={() => toggleSort("stock")}>Stock{sortIcon("stock")}</th>
                 <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)] cursor-pointer select-none hover:text-[var(--color-fg)]" onClick={() => toggleSort("level")}>Nivel{sortIcon("level")}</th>
                 <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)] cursor-pointer select-none hover:text-[var(--color-fg)]" onClick={() => toggleSort("price")}>Precio{sortIcon("price")}</th>
-                <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)] cursor-pointer select-none hover:text-[var(--color-fg)]" onClick={() => toggleSort("updated")}>Última actualización{sortIcon("updated")}</th>
+                <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)] cursor-pointer select-none hover:text-[var(--color-fg)]" onClick={() => toggleSort("updatedAt")}>Última actualización{sortIcon("updatedAt")}</th>
                 <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)] w-28">Acciones</th>
               </tr>
             </thead>
