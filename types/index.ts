@@ -14,9 +14,10 @@ export type Product = {
   price: number;
   stock: number;
   sku: string;
-  updated: string;
   description?: string;
   image?: string;
+  disabled?: boolean;
+  updatedAt?: string;
 };
 
 export type Order = {

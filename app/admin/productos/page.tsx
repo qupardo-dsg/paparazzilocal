@@ -1,16 +1,15 @@
 "use client";
 
-import { useState, useMemo, Suspense } from "react";
+import { useState, useMemo, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { products as initialProducts, orders } from "@/data/products";
+import { orders } from "@/data/products";
 import { CATEGORIES, Product } from "@/types";
 import Topbar from "@/components/admin/topbar";
 import { formatPrice } from "@/lib/utils";
 import ProductImage from "@/components/shop/product-image";
 import ConfirmModal from "@/components/admin/confirm-modal";
 
-let nextId = 25;
-const PER_PAGE = 10;
+  const [loading, setLoading] = useState(true);
 
 export default function AdminProductsPage() {
   return (
@@ -21,11 +20,20 @@ export default function AdminProductsPage() {
 }
 
 function AdminProductsContent() {
+  const PER_PAGE = 10;
   const searchParams = useSearchParams();
   const router = useRouter();
   const pageParam = Number(searchParams.get("page")) || 1;
   const [page, setPage] = useState(pageParam);
-  const [products, setProducts] = useState<Product[]>(initialProducts);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/products?showDisabled=true")
+      .then((r) => r.json())
+      .then(setProducts)
+      .finally(() => setLoading(false));
+  }, []);
   const [filter, setFilter] = useState("");
   const [search, setSearch] = useState("");
   const [sortField, setSortField] = useState<keyof Product | null>(null);
@@ -34,9 +42,8 @@ function AdminProductsContent() {
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [form, setForm] = useState({ name: "", category: "", price: "", stock: "", sku: "", image: "" });
 
-  const activeOrderProductIds = useMemo(() => {
-    const active = orders.filter((o) => o.status === "Pendiente" || o.status === "En camino");
-    return new Set(active.flatMap((o) => o.productIds));
+  const orderProductIds = useMemo(() => {
+    return new Set(orders.flatMap((o) => o.productIds));
   }, []);
 
   const toggleSort = (field: keyof Product) => {
@@ -102,40 +109,60 @@ function AdminProductsContent() {
     }
   };
 
-  const save = () => {
+  const save = async () => {
     const { name, category, price, stock, sku, image } = form;
-    if (!name || !category || !price || !stock || !sku) return alert("Completa todos los campos");
+    const errors: string[] = [];
+    if (!name) errors.push("Nombre");
+    if (!category) errors.push("Categoría");
+    if (!price) errors.push("Precio");
+    if (!stock) errors.push("Stock");
+    if (!sku) errors.push("SKU");
+    if (errors.length) return alert("Faltan: " + errors.join(", "));
+
+    const payload = { name, category, price: Number(price), stock: Number(stock), sku, image: image || null };
+
     if (modal.editId) {
-      setProducts((prev) =>
-        prev.map((p) =>
-          p.id === modal.editId
-            ? { ...p, name, category: category as Product["category"], price: Number(price), stock: Number(stock), sku, image: image || undefined, updated: today() }
-            : p
-        )
-      );
+      const res = await fetch("/api/products", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: modal.editId, ...payload }),
+      });
+      if (!res.ok) { const err = await res.json(); return alert(err.error || "Error"); }
+      const updated = await res.json();
+      setProducts((prev) => prev.map((p) => (p.id === modal.editId ? updated : p)));
     } else {
-      const newProduct: Product = {
-        id: nextId++,
-        name,
-        category: category as Product["category"],
-        price: Number(price),
-        stock: Number(stock),
-        sku,
-        image: image || undefined,
-        updated: today(),
-      };
-      setProducts((prev) => [...prev, newProduct]);
+      const res = await fetch("/api/products", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) { const err = await res.json(); return alert(err.error || "Error"); }
+      const created = await res.json();
+      setProducts((prev) => [...prev, created]);
     }
     setModal({ open: false });
   };
 
-  const remove = (id: number) => {
-    if (activeOrderProductIds.has(id)) return;
+  const remove = async (id: number) => {
+    if (orderProductIds.has(id)) return;
+    await fetch("/api/products", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id }),
+    });
     setProducts((prev) => prev.filter((p) => p.id !== id));
     setDeleteId(null);
   };
 
-  const hasActiveOrders = (id: number) => activeOrderProductIds.has(id);
+  const toggleDisabled = async (id: number) => {
+    const res = await fetch(`/api/products/${id}/toggle`, { method: "PATCH" });
+    if (res.ok) {
+      const updated = await res.json();
+      setProducts((prev) => prev.map((p) => (p.id === id ? updated : p)));
+    }
+  };
+
+  const hasOrders = (id: number) => orderProductIds.has(id);
 
   return (
     <>
@@ -202,11 +229,14 @@ function AdminProductsContent() {
                   <td className="px-5 py-3">
                     <div className="flex gap-2 items-center">
                       <button onClick={() => openModal(p.id)} className="text-sm text-[var(--color-muted)] hover:text-[var(--color-fg)]">Editar</button>
-                      {hasActiveOrders(p.id) ? (
-                        <span className="text-xs text-amber-600" title="Tiene pedidos activos">Pedidos activos</span>
+                      {hasOrders(p.id) ? (
+                        <button onClick={() => toggleDisabled(p.id)} className={`text-sm font-medium ${p.disabled ? "text-green-600 hover:text-green-800" : "text-amber-600 hover:text-amber-800"}`}>
+                          {p.disabled ? "Habilitar" : "Deshabilitar"}
+                        </button>
                       ) : (
                         <button onClick={() => setDeleteId(p.id)} className="text-sm text-[var(--color-danger)] hover:underline">Eliminar</button>
                       )}
+                      {p.disabled && <span className="text-xs bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full font-semibold">Deshabilitado</span>}
                     </div>
                   </td>
                 </tr>

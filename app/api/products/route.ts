@@ -3,8 +3,11 @@ import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { validateProduct } from "@/lib/validations";
 
-export async function GET() {
-  const products = await prisma.product.findMany({ orderBy: { id: "asc" } });
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const showDisabled = searchParams.get("showDisabled") === "true";
+  const where = showDisabled ? {} : { disabled: false };
+  const products = await prisma.product.findMany({ where, orderBy: { id: "asc" } });
   return NextResponse.json(products);
 }
 

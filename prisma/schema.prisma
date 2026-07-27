@@ -23,5 +23,6 @@ model Product {
   stock     Int
   sku       String   @unique
   image     String?
+  disabled  Boolean  @default(false)
   updatedAt DateTime @default(now()) @updatedAt
 }
