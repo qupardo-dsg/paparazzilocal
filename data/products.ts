@@ -28,14 +28,14 @@ export const products: Product[] = [
 ];
 
 export const orders: Order[] = [
-  { id: "#PZ-001", customer: "María González", items: 3, total: 56970, status: "Entregado", date: "2026-07-25" },
-  { id: "#PZ-002", customer: "Carlos Ruiz", items: 1, total: 24990, status: "En camino", date: "2026-07-25" },
-  { id: "#PZ-003", customer: "Ana Martínez", items: 2, total: 33980, status: "Pendiente", date: "2026-07-26" },
-  { id: "#PZ-004", customer: "Pedro López", items: 5, total: 89950, status: "Entregado", date: "2026-07-24" },
-  { id: "#PZ-005", customer: "Sofía Vargas", items: 4, total: 61980, status: "En camino", date: "2026-07-26" },
-  { id: "#PZ-006", customer: "Diego Herrera", items: 2, total: 27980, status: "Cancelado", date: "2026-07-23" },
-  { id: "#PZ-007", customer: "Camila Rojas", items: 1, total: 7990, status: "Pendiente", date: "2026-07-26" },
-  { id: "#PZ-008", customer: "Jorge Medina", items: 3, total: 52970, status: "Entregado", date: "2026-07-22" },
-  { id: "#PZ-009", customer: "Valentina Díaz", items: 6, total: 124900, status: "En camino", date: "2026-07-25" },
-  { id: "#PZ-010", customer: "Andrés Castro", items: 2, total: 31980, status: "Pendiente", date: "2026-07-26" },
+  { id: "#PZ-001", customer: "María González", items: 3, total: 56970, status: "Entregado", date: "2026-07-25", productIds: [1, 10, 14] },
+  { id: "#PZ-002", customer: "Carlos Ruiz", items: 1, total: 24990, status: "En camino", date: "2026-07-25", productIds: [4] },
+  { id: "#PZ-003", customer: "Ana Martínez", items: 2, total: 33980, status: "Pendiente", date: "2026-07-26", productIds: [7, 13] },
+  { id: "#PZ-004", customer: "Pedro López", items: 5, total: 89950, status: "Entregado", date: "2026-07-24", productIds: [2, 5, 11, 15, 20] },
+  { id: "#PZ-005", customer: "Sofía Vargas", items: 4, total: 61980, status: "En camino", date: "2026-07-26", productIds: [3, 8, 17] },
+  { id: "#PZ-006", customer: "Diego Herrera", items: 2, total: 27980, status: "Cancelado", date: "2026-07-23", productIds: [6, 22] },
+  { id: "#PZ-007", customer: "Camila Rojas", items: 1, total: 7990, status: "Pendiente", date: "2026-07-26", productIds: [13] },
+  { id: "#PZ-008", customer: "Jorge Medina", items: 3, total: 52970, status: "Entregado", date: "2026-07-22", productIds: [9, 16, 21] },
+  { id: "#PZ-009", customer: "Valentina Díaz", items: 6, total: 124900, status: "En camino", date: "2026-07-25", productIds: [1, 4, 10, 14, 18, 23] },
+  { id: "#PZ-010", customer: "Andrés Castro", items: 2, total: 31980, status: "Pendiente", date: "2026-07-26", productIds: [19, 24] },
 ];

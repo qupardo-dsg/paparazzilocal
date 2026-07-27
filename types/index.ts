@@ -19,6 +19,7 @@ export type Order = {
   total: number;
   status: "Entregado" | "En camino" | "Pendiente" | "Cancelado";
   date: string;
+  productIds: number[];
 };
 
 export type CartItem = {
