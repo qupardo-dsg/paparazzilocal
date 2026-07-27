@@ -1,20 +1,70 @@
+import Link from "next/link";
 import { orders, products } from "@/data/products";
 import Topbar from "@/components/admin/topbar";
 import KpiCard from "@/components/admin/kpi-card";
 
 export default function AdminDashboardPage() {
   const totalRevenue = orders.reduce((s, o) => s + o.total, 0);
-  const pending = orders.filter((o) => o.status === "Pendiente").length;
+  const pending = orders.filter((o) => o.status === "Pendiente");
+  const today = new Date().toISOString().split("T")[0];
+  const newToday = orders.filter((o) => o.date === today).length;
+  const urgent = [...pending].sort((a, b) => a.date.localeCompare(b.date)).slice(0, 5);
 
   return (
     <>
       <Topbar title="Dashboard" />
       <div className="p-6">
+        {/* Alerts */}
+        {(urgent.length > 0) && (
+          <div className="mb-6">
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-[var(--color-muted)] mb-3">Alertas</h2>
+            <div className="max-h-64 overflow-y-auto space-y-2">
+              {urgent.map((o) => {
+                const days = Math.ceil((Date.now() - new Date(o.date).getTime()) / (1000 * 60 * 60 * 24));
+                const isUrgent = days >= 5;
+                return (
+                  <Link
+                    key={o.id}
+                    href="/admin/pedidos"
+                    className={`flex items-center justify-between p-4 rounded-lg border transition-colors hover:shadow-sm ${
+                      isUrgent
+                        ? "bg-red-50 border-red-200 hover:bg-red-100"
+                        : "bg-amber-50 border-amber-200 hover:bg-amber-100"
+                    }`}
+                  >
+                    <div className="flex items-center gap-4">
+                      <span className={`w-2 h-2 rounded-full shrink-0 ${isUrgent ? "bg-red-500 animate-pulse" : "bg-amber-500"}`} />
+                      <div>
+                        <p className="text-sm font-semibold">
+                          {o.id} — {o.customer}
+                        </p>
+                        <p className="text-xs text-[var(--color-muted)] mt-0.5">
+                          {isUrgent
+                            ? `Urgente — ${days} días pendiente (envío 5-7 días)`
+                            : `${days} día${days !== 1 ? "s" : ""} pendiente`}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <p className="text-sm font-semibold">${o.total.toLocaleString("es-CL")}</p>
+                      <p className="text-xs text-[var(--color-muted)]">{o.date}</p>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+            <div className="flex gap-4 mt-3 text-xs text-[var(--color-muted)]">
+              <span>{pending.length} pedidos pendientes</span>
+              <span>{newToday} nuevos hoy</span>
+            </div>
+          </div>
+        )}
+
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <KpiCard label="Productos" value={String(products.length)} change="+3 este mes" trend="up" />
           <KpiCard label="Pedidos" value={String(orders.length)} change="+12% vs mes anterior" trend="up" />
           <KpiCard label="Ingresos" value={`$${totalRevenue.toLocaleString("es-CL")}`} change="+18% vs mes anterior" trend="up" />
-          <KpiCard label="Pendientes" value={String(pending)} change="-2 desde ayer" trend="down" />
+          <KpiCard label="Pendientes" value={String(pending.length)} change="-2 desde ayer" trend="down" />
         </div>
 
         <div className="bg-white border border-[var(--color-border-soft)] rounded-xl p-6 mb-6">
