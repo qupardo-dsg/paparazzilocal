@@ -1,17 +1,14 @@
 "use client";
 
-import { Order, Product } from "@/types";
+import { Order } from "@/types";
 import { formatPrice } from "@/lib/utils";
 
 type Props = {
   order: Order;
-  products: Product[];
   onClose: () => void;
 };
 
-export default function OrderDetailModal({ order, products, onClose }: Props) {
-  const productMap = new Map(products.map((p) => [p.id, p]));
-
+export default function OrderDetailModal({ order, onClose }: Props) {
   return (
     <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center" onClick={onClose}>
       <div className="bg-white rounded-xl shadow-xl max-w-[520px] w-[90%] max-h-[85vh] overflow-y-auto p-6" onClick={(e) => e.stopPropagation()}>
@@ -35,7 +32,7 @@ export default function OrderDetailModal({ order, products, onClose }: Props) {
         <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--color-muted)] mb-3">Productos comprados</h3>
         <div className="space-y-2">
           {order.items.map((item) => {
-            const p = productMap.get(item.productId);
+            const p = item.product;
             return (
               <div key={item.id} className="flex items-center gap-3 p-3 bg-[var(--color-surface)] border border-[var(--color-border-soft)] rounded-lg">
                 <div className="w-10 h-10 bg-[var(--color-surface-warm)] rounded flex items-center justify-center text-[var(--color-meta)] shrink-0">

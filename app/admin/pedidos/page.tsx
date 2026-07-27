@@ -2,10 +2,9 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { Order, ORDER_STATUSES, STATUS_NEXT } from "@/types";
-import { products as productList } from "@/data/products";
-import Topbar from "@/components/admin/topbar";
 import OrderStatusModal from "@/components/admin/order-status-modal";
 import OrderDetailModal from "@/components/admin/order-detail-modal";
+import Topbar from "@/components/admin/topbar";
 
 const PER_PAGE = 10;
 
@@ -206,7 +205,7 @@ export default function AdminOrdersPage() {
         <OrderStatusModal order={statusModal} onClose={() => setStatusModal(null)} onConfirm={updateStatus} />
       )}
       {detailModal && (
-        <OrderDetailModal order={detailModal} products={productList} onClose={() => setDetailModal(null)} />
+        <OrderDetailModal order={detailModal} onClose={() => setDetailModal(null)} />
       )}
     </>
   );
