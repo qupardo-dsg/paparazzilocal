@@ -7,6 +7,7 @@ import { formatPrice } from "@/lib/utils";
 
 const STOCK_REASONS = [
   "Reposición de proveedor",
+  "Venta presencial",
   "Ajuste de inventario",
   "Producto dañado",
   "Devolución",
