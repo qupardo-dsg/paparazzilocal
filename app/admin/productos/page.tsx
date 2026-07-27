@@ -2,7 +2,6 @@
 
 import { useState, useMemo, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { orders } from "@/data/products";
 import { CATEGORIES, Product } from "@/types";
 import Topbar from "@/components/admin/topbar";
 import { formatPrice } from "@/lib/utils";
@@ -26,13 +25,18 @@ function AdminProductsContent() {
   const pageParam = Number(searchParams.get("page")) || 1;
   const [page, setPage] = useState(pageParam);
   const [products, setProducts] = useState<Product[]>([]);
+  const [orderProductIds, setOrderProductIds] = useState<Set<number>>(new Set());
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/products?showDisabled=true")
-      .then((r) => r.json())
-      .then(setProducts)
-      .finally(() => setLoading(false));
+    Promise.all([
+      fetch("/api/products?showDisabled=true").then((r) => r.json()),
+      fetch("/api/orders/productIds").then((r) => r.json()),
+    ]).then(([products, ids]) => {
+      setProducts(products);
+      setOrderProductIds(new Set(ids));
+      setLoading(false);
+    });
   }, []);
   const [filter, setFilter] = useState("");
   const [search, setSearch] = useState("");
@@ -41,10 +45,6 @@ function AdminProductsContent() {
   const [modal, setModal] = useState<{ open: boolean; editId?: number }>({ open: false });
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [form, setForm] = useState({ name: "", category: "", price: "", stock: "", sku: "", image: "" });
-
-  const orderProductIds = useMemo(() => {
-    return new Set(orders.flatMap((o) => o.productIds));
-  }, []);
 
   const toggleSort = (field: keyof Product) => {
     if (sortField === field) {
