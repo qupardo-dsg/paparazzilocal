@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useMemo } from "react";
 import { orders as initialOrders } from "@/data/products";
 import { Order, ORDER_STATUSES, STATUS_NEXT } from "@/types";
@@ -14,6 +15,14 @@ export default function AdminOrdersPage() {
   const [statusFilter, setStatusFilter] = useState("");
   const [sortField, setSortField] = useState<keyof Order | null>(null);
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+
+  const pendingOrders = useMemo(() => orders.filter((o) => o.status === "Pendiente"), [orders]);
+  const today = new Date().toISOString().split("T")[0];
+  const newToday = orders.filter((o) => o.date === today).length;
+  const urgent = useMemo(
+    () => [...pendingOrders].sort((a, b) => a.date.localeCompare(b.date)).slice(0, 5),
+    [pendingOrders]
+  );
 
   const toggleSort = (field: keyof Order) => {
     if (sortField === field) {
@@ -70,6 +79,77 @@ export default function AdminOrdersPage() {
     <>
       <Topbar title="Pedidos" />
       <div className="p-6">
+        {/* Urgency alerts */}
+        {urgent.length > 0 && (
+          <div className="mb-5 space-y-2">
+            {urgent.map((o) => {
+              const days = Math.ceil((Date.now() - new Date(o.date).getTime()) / (1000 * 60 * 60 * 24));
+              const isUrgent = days >= 5;
+              return (
+                <div
+                  key={o.id}
+                  className={`flex items-center justify-between p-4 rounded-lg border ${
+                    isUrgent ? "bg-red-50 border-red-200" : "bg-amber-50 border-amber-200"
+                  }`}
+                >
+                  <div className="flex items-center gap-4">
+                    <span className={`w-2 h-2 rounded-full shrink-0 ${isUrgent ? "bg-red-500 animate-pulse" : "bg-amber-500"}`} />
+                    <div>
+                      <p className="text-sm font-semibold">{o.id} — {o.customer}</p>
+                      <p className="text-xs text-[var(--color-muted)] mt-0.5">
+                        {isUrgent ? `Urgente — ${days} días pendiente (envío 5-7 días)` : `${days} día${days !== 1 ? "s" : ""} pendiente`}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="text-right shrink-0">
+                      <p className="text-sm font-semibold">${o.total.toLocaleString("es-CL")}</p>
+                      <p className="text-xs text-[var(--color-muted)]">{o.date}</p>
+                    </div>
+                    <button onClick={() => updateStatus(o.id)} className="text-xs bg-[var(--color-accent)] text-[var(--color-accent-on)] rounded-full px-3 py-1 font-semibold hover:bg-[var(--color-accent-hover)] transition-colors">
+                      Marcar enviado
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+            <div className="flex gap-4 text-xs text-[var(--color-muted)] pt-1">
+              <span>{pendingOrders.length} pendientes</span>
+              <span>{newToday} nuevos hoy</span>
+              <span>{orders.length} total</span>
+            </div>
+          </div>
+        )}
+
+        {/* Recent orders */}
+        <div className="mb-5 bg-white border border-[var(--color-border-soft)] rounded-xl overflow-hidden">
+          <div className="px-5 py-3 border-b border-[var(--color-border-soft)]">
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-[var(--color-muted)]">Pedidos recientes</h2>
+          </div>
+          <div className="max-h-64 overflow-y-auto">
+            <table className="w-full">
+              <thead><tr className="text-left">
+                <th className="px-5 py-2 text-xs font-semibold text-[var(--color-muted)]">ID</th>
+                <th className="px-5 py-2 text-xs font-semibold text-[var(--color-muted)]">Cliente</th>
+                <th className="px-5 py-2 text-xs font-semibold text-[var(--color-muted)]">Total</th>
+                <th className="px-5 py-2 text-xs font-semibold text-[var(--color-muted)]">Estado</th>
+                <th className="px-5 py-2 text-xs font-semibold text-[var(--color-muted)]">Fecha</th>
+              </tr></thead>
+              <tbody>
+                {[...orders].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5).map((o) => (
+                  <tr key={o.id} className="hover:bg-[var(--color-surface)]">
+                    <td className="px-5 py-2 text-xs font-mono">{o.id}</td>
+                    <td className="px-5 py-2 text-sm">{o.customer}</td>
+                    <td className="px-5 py-2 text-sm">${o.total.toLocaleString("es-CL")}</td>
+                    <td className="px-5 py-2 text-sm"><StatusBadge status={o.status} /></td>
+                    <td className="px-5 py-2 text-xs text-[var(--color-meta)]">{o.date}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
         <div className="bg-white border border-[var(--color-border-soft)] rounded-xl overflow-hidden">
           <div className="flex justify-between items-center px-5 py-4 border-b border-[var(--color-border-soft)] flex-wrap gap-3">
             <h2 className="text-lg font-semibold">Todos los pedidos</h2>
