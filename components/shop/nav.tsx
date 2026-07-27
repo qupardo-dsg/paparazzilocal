@@ -52,8 +52,8 @@ export default function Nav() {
                 placeholder="Buscar productos..."
                 className="w-full bg-[var(--color-surface)] border border-[var(--color-border-soft)] rounded-md pl-10 pr-4 py-2.5 text-sm text-[var(--color-fg)] outline-none focus:border-[var(--color-accent)] transition-colors"
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" && matches.length > 0) {
-                    router.push(`/producto/${matches[0].id}`);
+                  if (e.key === "Enter" && (matches as any[]).length > 0) {
+                    router.push(`/producto/${(matches as any[])[0].id}`);
                     setShowDropdown(false);
                     setQuery("");
                   }
