@@ -7,6 +7,7 @@ import { CATEGORIES, Product } from "@/types";
 import Topbar from "@/components/admin/topbar";
 import { formatPrice } from "@/lib/utils";
 import ProductImage from "@/components/shop/product-image";
+import ConfirmModal from "@/components/admin/confirm-modal";
 
 let nextId = 25;
 const PER_PAGE = 10;
@@ -30,6 +31,7 @@ function AdminProductsContent() {
   const [sortField, setSortField] = useState<keyof Product | null>(null);
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
   const [modal, setModal] = useState<{ open: boolean; editId?: number }>({ open: false });
+  const [deleteId, setDeleteId] = useState<number | null>(null);
   const [form, setForm] = useState({ name: "", category: "", price: "", stock: "", sku: "", image: "" });
 
   const activeOrderProductIds = useMemo(() => {
@@ -129,8 +131,8 @@ function AdminProductsContent() {
 
   const remove = (id: number) => {
     if (activeOrderProductIds.has(id)) return;
-    if (!confirm("¿Eliminar este producto?")) return;
     setProducts((prev) => prev.filter((p) => p.id !== id));
+    setDeleteId(null);
   };
 
   const hasActiveOrders = (id: number) => activeOrderProductIds.has(id);
@@ -203,7 +205,7 @@ function AdminProductsContent() {
                       {hasActiveOrders(p.id) ? (
                         <span className="text-xs text-amber-600" title="Tiene pedidos activos">Pedidos activos</span>
                       ) : (
-                        <button onClick={() => remove(p.id)} className="text-sm text-[var(--color-danger)] hover:underline">Eliminar</button>
+                        <button onClick={() => setDeleteId(p.id)} className="text-sm text-[var(--color-danger)] hover:underline">Eliminar</button>
                       )}
                     </div>
                   </td>
@@ -280,6 +282,20 @@ function AdminProductsContent() {
             </div>
           </div>
         </div>
+      )}
+
+      {deleteId !== null && (
+        <ConfirmModal
+          title="Eliminar producto"
+          message={(() => {
+            const p = products.find((pr) => pr.id === deleteId);
+            return `¿Estás seguro de eliminar "${p?.name || `#${deleteId}`}"? Esta acción no se puede deshacer.`;
+          })()}
+          confirmLabel="Eliminar"
+          variant="danger"
+          onConfirm={() => remove(deleteId)}
+          onCancel={() => setDeleteId(null)}
+        />
       )}
     </>
   );
