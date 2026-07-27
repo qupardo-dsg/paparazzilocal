@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { useState, useMemo } from "react";
-import { orders as initialOrders } from "@/data/products";
+import { orders as initialOrders, products as productList } from "@/data/products";
 import { Order, ORDER_STATUSES, STATUS_NEXT } from "@/types";
 import Topbar from "@/components/admin/topbar";
 import OrderStatusModal from "@/components/admin/order-status-modal";
+import OrderDetailModal from "@/components/admin/order-detail-modal";
 
 const PER_PAGE = 10;
 
@@ -17,6 +18,7 @@ export default function AdminOrdersPage() {
   const [sortField, setSortField] = useState<keyof Order | null>(null);
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
   const [statusModal, setStatusModal] = useState<Order | null>(null);
+  const [detailModal, setDetailModal] = useState<Order | null>(null);
 
   const pendingOrders = useMemo(() => orders.filter((o) => o.status === "Pendiente"), [orders]);
   const today = new Date().toISOString().split("T")[0];
@@ -141,7 +143,7 @@ export default function AdminOrdersPage() {
               <tbody>
                 {[...orders].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5).map((o) => (
                   <tr key={o.id} className="hover:bg-[var(--color-surface)]">
-                    <td className="px-5 py-2 text-xs font-mono">{o.id}</td>
+                    <td className="px-5 py-2 text-xs font-mono cursor-pointer hover:text-[var(--color-accent)]" onClick={() => setDetailModal(o)}>{o.id}</td>
                     <td className="px-5 py-2 text-sm">{o.customer}</td>
                     <td className="px-5 py-2 text-sm">${o.total.toLocaleString("es-CL")}</td>
                     <td className="px-5 py-2 text-sm"><StatusBadge status={o.status} /></td>
@@ -159,7 +161,7 @@ export default function AdminOrdersPage() {
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2 bg-[var(--color-surface-warm)] border border-[var(--color-border-soft)] rounded-md px-3 py-2">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input type="text" placeholder="Buscar..." value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} className="bg-transparent outline-none text-sm w-40" />
+                <input type="text" placeholder="Buscar pedido..." value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} className="bg-transparent outline-none text-sm w-40" />
               </div>
               <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }} className="bg-[var(--color-surface-elevated)] rounded-md px-3 py-2 text-sm outline-none cursor-pointer">
                 <option value="">Todos los estados</option>
@@ -195,7 +197,7 @@ export default function AdminOrdersPage() {
               <tbody>
                 {paginated.map((o) => (
                   <tr key={o.id} className="hover:bg-[var(--color-surface)]">
-                    <td className="px-5 py-3 text-xs font-mono">{o.id}</td>
+                    <td className="px-5 py-3 text-xs font-mono cursor-pointer hover:text-[var(--color-accent)]" onClick={() => setDetailModal(o)}>{o.id}</td>
                     <td className="px-5 py-3 text-sm">{o.customer}</td>
                     <td className="px-5 py-3 text-sm">{o.items} producto{o.items > 1 ? "s" : ""}</td>
                     <td className="px-5 py-3 text-sm">${o.total.toLocaleString("es-CL")}</td>
@@ -231,6 +233,14 @@ export default function AdminOrdersPage() {
           order={statusModal}
           onClose={() => setStatusModal(null)}
           onConfirm={updateStatus}
+        />
+      )}
+
+      {detailModal && (
+        <OrderDetailModal
+          order={detailModal}
+          products={productList}
+          onClose={() => setDetailModal(null)}
         />
       )}
     </>

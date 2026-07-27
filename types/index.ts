@@ -1,6 +1,12 @@
 export const CATEGORIES = ["Perfumes", "Mochilas", "Peluches", "Joyería", "Maquillaje"] as const;
 export type Category = (typeof CATEGORIES)[number];
 
+export type LineItem = {
+  productId: number;
+  quantity: number;
+  price: number;
+};
+
 export type Product = {
   id: number;
   name: string;
@@ -20,6 +26,7 @@ export type Order = {
   status: "Entregado" | "En camino" | "Pendiente" | "Cancelado";
   date: string;
   productIds: number[];
+  lineItems: LineItem[];
 };
 
 export type CartItem = {

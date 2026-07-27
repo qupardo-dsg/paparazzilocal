@@ -28,16 +28,16 @@ export const products: Product[] = [
 ];
 
 export const orders: Order[] = [
-  { id: "#PZ-001", customer: "María González", items: 3, total: 56970, status: "Entregado", date: "2026-07-25", productIds: [1, 10, 14] },
-  { id: "#PZ-002", customer: "Carlos Ruiz", items: 1, total: 24990, status: "En camino", date: "2026-07-25", productIds: [4] },
-  { id: "#PZ-003", customer: "Ana Martínez", items: 2, total: 33980, status: "Pendiente", date: "2026-07-26", productIds: [7, 13] },
-  { id: "#PZ-004", customer: "Pedro López", items: 5, total: 89950, status: "Entregado", date: "2026-07-24", productIds: [2, 5, 11, 15, 20] },
-  { id: "#PZ-005", customer: "Sofía Vargas", items: 4, total: 61980, status: "En camino", date: "2026-07-26", productIds: [3, 8, 17] },
-  { id: "#PZ-006", customer: "Diego Herrera", items: 2, total: 27980, status: "Cancelado", date: "2026-07-23", productIds: [6, 22] },
-  { id: "#PZ-007", customer: "Camila Rojas", items: 1, total: 7990, status: "Pendiente", date: "2026-07-26", productIds: [13] },
-  { id: "#PZ-008", customer: "Jorge Medina", items: 3, total: 52970, status: "Entregado", date: "2026-07-22", productIds: [9, 16, 21] },
-  { id: "#PZ-009", customer: "Valentina Díaz", items: 6, total: 124900, status: "En camino", date: "2026-07-25", productIds: [1, 4, 10, 14, 18, 23] },
-  { id: "#PZ-010", customer: "Andrés Castro", items: 2, total: 31980, status: "Pendiente", date: "2026-07-26", productIds: [19, 24] },
+  { id: "#PZ-001", customer: "María González", items: 3, total: 56970, status: "Entregado", date: "2026-07-25", productIds: [1, 10, 14], lineItems: [{ productId: 1, quantity: 1, price: 24990 }, { productId: 10, quantity: 1, price: 18990 }, { productId: 14, quantity: 1, price: 12990 }] },
+  { id: "#PZ-002", customer: "Carlos Ruiz", items: 1, total: 24990, status: "En camino", date: "2026-07-25", productIds: [4], lineItems: [{ productId: 4, quantity: 1, price: 24990 }] },
+  { id: "#PZ-003", customer: "Ana Martínez", items: 2, total: 33980, status: "Pendiente", date: "2026-07-26", productIds: [7, 13], lineItems: [{ productId: 7, quantity: 1, price: 9990 }, { productId: 13, quantity: 1, price: 23990 }] },
+  { id: "#PZ-004", customer: "Pedro López", items: 5, total: 89950, status: "Entregado", date: "2026-07-24", productIds: [2, 5, 11, 15, 20], lineItems: [{ productId: 2, quantity: 1, price: 18990 }, { productId: 5, quantity: 1, price: 21990 }, { productId: 11, quantity: 1, price: 24990 }, { productId: 15, quantity: 1, price: 9990 }, { productId: 20, quantity: 1, price: 11990 }] },
+  { id: "#PZ-005", customer: "Sofía Vargas", items: 4, total: 61980, status: "En camino", date: "2026-07-26", productIds: [3, 8, 17], lineItems: [{ productId: 3, quantity: 1, price: 29990 }, { productId: 8, quantity: 1, price: 11990 }, { productId: 17, quantity: 1, price: 15990 }] },
+  { id: "#PZ-006", customer: "Diego Herrera", items: 2, total: 27980, status: "Cancelado", date: "2026-07-23", productIds: [6, 22], lineItems: [{ productId: 6, quantity: 1, price: 9990 }, { productId: 22, quantity: 1, price: 17990 }] },
+  { id: "#PZ-007", customer: "Camila Rojas", items: 1, total: 7990, status: "Pendiente", date: "2026-07-26", productIds: [13], lineItems: [{ productId: 13, quantity: 1, price: 7990 }] },
+  { id: "#PZ-008", customer: "Jorge Medina", items: 3, total: 52970, status: "Entregado", date: "2026-07-22", productIds: [9, 16, 21], lineItems: [{ productId: 9, quantity: 1, price: 13990 }, { productId: 16, quantity: 1, price: 15990 }, { productId: 21, quantity: 1, price: 22990 }] },
+  { id: "#PZ-009", customer: "Valentina Díaz", items: 6, total: 124900, status: "En camino", date: "2026-07-25", productIds: [1, 4, 10, 14, 18, 23], lineItems: [{ productId: 1, quantity: 1, price: 24990 }, { productId: 4, quantity: 1, price: 35990 }, { productId: 10, quantity: 1, price: 18990 }, { productId: 14, quantity: 1, price: 15990 }, { productId: 18, quantity: 1, price: 28990 }, { productId: 23, quantity: 1, price: 31990 }] },
+  { id: "#PZ-010", customer: "Andrés Castro", items: 2, total: 31980, status: "Pendiente", date: "2026-07-26", productIds: [19, 24], lineItems: [{ productId: 19, quantity: 1, price: 15990 }, { productId: 24, quantity: 1, price: 15990 }] },
 ];
 
 export const stockHistory: StockHistoryEntry[] = [

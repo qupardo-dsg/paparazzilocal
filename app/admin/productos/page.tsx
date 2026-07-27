@@ -163,7 +163,7 @@ function AdminProductsContent() {
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2 bg-[var(--color-surface-warm)] border border-[var(--color-border-soft)] rounded-md px-3 py-2">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input type="text" placeholder="Buscar..." value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); goToPage(1); }} className="bg-transparent outline-none text-sm w-36" />
+                <input type="text" placeholder="Buscar producto..." value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); goToPage(1); }} className="bg-transparent outline-none text-sm w-36" />
               </div>
               <button onClick={() => openModal()} className="bg-[var(--color-accent)] text-[var(--color-accent-on)] rounded-full px-4 py-2 text-sm font-semibold hover:bg-[var(--color-accent-hover)] transition-colors">
                 + Agregar
