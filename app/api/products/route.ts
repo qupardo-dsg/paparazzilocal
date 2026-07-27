@@ -32,6 +32,16 @@ export async function POST(request: Request) {
       image: data.image || null,
     },
   });
+
+  await prisma.stockMovement.create({
+    data: {
+      productId: product.id,
+      oldStock: 0,
+      newStock: product.stock,
+      reason: "Stock inicial",
+    },
+  });
+
   return NextResponse.json(product, { status: 201 });
 }
 

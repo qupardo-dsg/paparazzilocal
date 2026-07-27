@@ -44,5 +44,30 @@ export async function PATCH(request: Request) {
     data: { status },
     include: { items: { include: { product: true } } },
   });
+
+  // Al pasar a "Pagado", descontar stock y registrar movimiento
+  if (status === "Pagado") {
+    for (const item of order.items) {
+      const product = await prisma.product.findUnique({ where: { id: item.productId } });
+      if (!product) continue;
+
+      const newStock = product.stock - item.quantity;
+
+      await prisma.product.update({
+        where: { id: item.productId },
+        data: { stock: newStock },
+      });
+
+      await prisma.stockMovement.create({
+        data: {
+          productId: item.productId,
+          oldStock: product.stock,
+          newStock,
+          reason: `Venta ${order.id}`,
+        },
+      });
+    }
+  }
+
   return NextResponse.json(order);
 }
