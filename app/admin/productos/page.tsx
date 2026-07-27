@@ -183,34 +183,14 @@ function AdminProductsContent() {
         </div>
 
         {totalPages > 1 && (
-          <div className="flex items-center justify-center gap-2 mt-6">
-            <button
-              onClick={() => goToPage(currentPage - 1)}
-              disabled={currentPage <= 1}
-              className="px-3 py-1.5 text-sm border rounded-md disabled:opacity-30 hover:bg-[var(--color-surface)] transition-colors"
-            >
-              Anterior
-            </button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-              <button
-                key={p}
-                onClick={() => goToPage(p)}
-                className={`w-8 h-8 text-sm rounded-md transition-colors ${
-                  p === currentPage
-                    ? "bg-[var(--color-accent)] text-[var(--color-accent-on)] font-semibold"
-                    : "hover:bg-[var(--color-surface)]"
-                }`}
-              >
-                {p}
-              </button>
-            ))}
-            <button
-              onClick={() => goToPage(currentPage + 1)}
-              disabled={currentPage >= totalPages}
-              className="px-3 py-1.5 text-sm border rounded-md disabled:opacity-30 hover:bg-[var(--color-surface)] transition-colors"
-            >
-              Siguiente
-            </button>
+          <div className="flex items-center justify-center gap-1 mt-6">
+            <button onClick={() => goToPage(1)} disabled={currentPage <= 1} className="min-w-[32px] h-8 border border-[var(--color-border-soft)] rounded text-xs font-semibold flex items-center justify-center disabled:opacity-30 hover:border-[var(--color-accent)] transition-colors">«</button>
+            <button onClick={() => goToPage(currentPage - 1)} disabled={currentPage <= 1} className="min-w-[32px] h-8 border border-[var(--color-border-soft)] rounded text-xs font-semibold flex items-center justify-center disabled:opacity-30 hover:border-[var(--color-accent)] transition-colors">‹</button>
+            <span className="text-xs text-[var(--color-meta)] px-2">
+              {(currentPage - 1) * PER_PAGE + 1}–{Math.min(currentPage * PER_PAGE, filtered.length)} de {filtered.length}
+            </span>
+            <button onClick={() => goToPage(currentPage + 1)} disabled={currentPage >= totalPages} className="min-w-[32px] h-8 border border-[var(--color-border-soft)] rounded text-xs font-semibold flex items-center justify-center disabled:opacity-30 hover:border-[var(--color-accent)] transition-colors">›</button>
+            <button onClick={() => goToPage(totalPages)} disabled={currentPage >= totalPages} className="min-w-[32px] h-8 border border-[var(--color-border-soft)] rounded text-xs font-semibold flex items-center justify-center disabled:opacity-30 hover:border-[var(--color-accent)] transition-colors">»</button>
           </div>
         )}
       </div>
