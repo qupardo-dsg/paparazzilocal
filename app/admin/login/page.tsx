@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState("");
@@ -47,6 +48,9 @@ export default function AdminLoginPage() {
         <button type="submit" className="bg-[var(--color-accent)] text-[var(--color-accent-on)] rounded-full px-6 py-3 font-semibold hover:bg-[var(--color-accent-hover)] transition-colors">
           Ingresar
         </button>
+        <Link href="/" className="text-sm text-center text-[var(--color-muted)] hover:text-[var(--color-fg)] transition-colors">
+          ← Volver a la tienda
+        </Link>
       </form>
     </div>
   );
