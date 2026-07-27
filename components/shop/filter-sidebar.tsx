@@ -54,15 +54,6 @@ export default function FilterSidebar({ groups, selected, onChange }: Props) {
           </div>
         </div>
       )}
-
-      {/* Desktop sidebar */}
-      <aside className="hidden lg:block w-60 shrink-0">
-        <div className="sticky top-32 space-y-px">
-          {groups.map((g) => (
-            <FilterGroupPanel key={g.id} group={g} selected={selected[g.id] || []} collapsed={collapsed[g.id]} onToggle={() => toggleGroup(g.id)} onChange={(v) => onChange(g.id, v)} />
-          ))}
-        </div>
-      </aside>
     </>
   );
 }
