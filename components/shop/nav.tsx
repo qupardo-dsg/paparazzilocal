@@ -31,9 +31,9 @@ export default function Nav() {
   return (
     <nav className="sticky top-0 z-50 bg-[#000000] border-b border-[#1e2c31] pt-2">
       {/* Top row: logo · search · cart */}
-      <div className="h-20 flex items-center">
-        <div className="flex items-center justify-between w-full max-w-7xl mx-auto px-4 lg:px-16 gap-4">
-          <Link href="/" className="flex items-center gap-3 shrink-0 text-white text-xl font-[family-name:var(--font-display)] font-medium tracking-wide">
+      <div className="h-26 flex items-center">
+        <div className="flex items-center justify-between w-full max-w-7xl mx-auto px-4 lg:px-16 gap-2">
+          <Link href="/" className="flex items-center gap-3 shrink-0 text-white text-2xl font-[family-name:var(--font-display)] font-medium tracking-wide">
             <img src="/logo.png" alt="PaparazziLocal" className="h-10 w-auto" />
             PAPARAZZILOCAL
           </Link>
