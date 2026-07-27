@@ -29,16 +29,16 @@ export default function Nav() {
   const currentCat = CATEGORIES.find((c) => pathname.startsWith(`/catalogo/${c.toLowerCase()}`));
 
   return (
-    <nav className="sticky top-0 z-50 bg-[#000000] border-b border-[#1e2c31] pt-2">
+    <nav className="bg-[#000000] border-b border-[#1e2c31] pt-2">
       {/* Top row: logo · search · cart */}
       <div className="h-26 flex items-center">
-        <div className="flex items-center justify-between w-full max-w-7xl mx-auto px-4 lg:px-16 gap-2">
-          <Link href="/" className="flex items-center gap-3 shrink-0 text-white text-2xl font-[family-name:var(--font-display)] font-medium tracking-wide">
+        <div className="flex items-center w-full max-w-7xl mx-auto gap-16">
+          <Link href="/" className="flex items-center gap-2 text-white text-2xl font-[family-name:var(--font-display)] font-medium tracking-wide">
             <img src="/logo.png" alt="PaparazziLocal" className="h-10 w-auto" />
             PAPARAZZILOCAL
           </Link>
 
-          <div ref={ref} className="hidden lg:block flex-1 max-w-[400px] relative">
+          <div ref={ref} className="hidden lg:block flex-1 max-w-[640px] relative">
             <div className="relative">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
                 className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-meta)] pointer-events-none">
@@ -69,7 +69,7 @@ export default function Nav() {
             )}
           </div>
 
-          <div className="flex items-center gap-4 shrink-0">
+          <div className="flex items-center gap-4 shrink-0 ml-auto">
             <Link href="/carrito" className="text-white/80 hover:text-white transition-colors relative">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M6 6h15l-1.5 9h-12z" /><circle cx="9" cy="20" r="1.5" /><circle cx="18" cy="20" r="1.5" /><path d="M6 6L5 3H2" />
@@ -91,7 +91,7 @@ export default function Nav() {
 
       {/* Bottom row: categories */}
       <div className="hidden lg:block border-t border-white/[0.06] bg-[var(--color-accent)]">
-        <div className="max-w-7xl mx-auto px-4 lg:px-16 flex items-center gap-5 overflow-x-auto">
+        <div className="max-w-7xl mx-auto flex items-center gap-5 overflow-x-auto">
           {CATEGORIES.map((cat) => {
             const active = cat === currentCat;
             return (
